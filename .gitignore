@@ -16,6 +16,11 @@ kubeconfig
 index.yaml
 charts/*/charts/*.tgz
 
+# Local private values
+/dev-values.yaml
+/prod-values.yaml
+/*.local-values.yaml
+
 # Local dependencies and build outputs
 .venv/
 venv/

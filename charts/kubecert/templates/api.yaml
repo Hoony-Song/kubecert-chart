@@ -35,6 +35,7 @@ spec:
             {{- include "kubecert.databaseEnv" . | nindent 12 }}
             {{- include "kubecert.redisEnv" . | nindent 12 }}
             {{- include "kubecert.jwtEnv" . | nindent 12 }}
+            {{- include "kubecert.r2Env" . | nindent 12 }}
           volumeMounts:
             - name: runtime-ssh-key
               mountPath: /etc/cert/runtime

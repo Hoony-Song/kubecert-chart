@@ -86,12 +86,22 @@ config:
     sshPort: 22
     runtimeSshKeyPath: /etc/cert/runtime/id_ed25519
     allowedOrigins: []
-  s3:
-    enabled: false
-    endpointUrl: ""
-    bucket: ""
-    region: us-east-1
-    forcePathStyle: true
+
+r2:
+  enabled: false
+  publicBaseUrl: ""
+  endpointUrl: ""
+  bucket: ""
+  region: auto
+  forcePathStyle: true
+  auth:
+    create: false
+    name: ""
+    existingSecret: ""
+    accessKeyIdKey: access-key-id
+    secretAccessKeyKey: secret-access-key
+    accessKeyIdValue: ""
+    secretAccessKeyValue: ""
 
 secrets:
   app:
@@ -124,14 +134,6 @@ secrets:
     publicKeyKey: runtime_admin_key.pub
     privateKeyValue: ""
     publicKeyValue: ""
-  s3:
-    create: false
-    name: ""
-    existingSecret: ""
-    accessKeyIdKey: access-key-id
-    secretAccessKeyKey: secret-access-key
-    accessKeyIdValue: ""
-    secretAccessKeyValue: ""
 
 postgresql:
   enabled: true

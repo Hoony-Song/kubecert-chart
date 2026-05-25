@@ -53,6 +53,7 @@ spec:
           env:
             {{- include "kubecert.databaseEnv" $root | nindent 12 }}
             {{- include "kubecert.redisEnv" $root | nindent 12 }}
+            {{- include "kubecert.r2Env" $root | nindent 12 }}
             - name: CERT_WORKER_MODE
               value: {{ $worker.mode | quote }}
           volumeMounts:

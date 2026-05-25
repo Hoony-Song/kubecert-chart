@@ -91,6 +91,10 @@ imagePullSecrets:
 {{- coalesce .Values.secrets.terminalSsh.existingSecret .Values.secrets.terminalSsh.name (printf "%s-terminal-ssh" (include "kubecert.fullname" .)) -}}
 {{- end -}}
 
+{{- define "kubecert.r2SecretName" -}}
+{{- coalesce .Values.r2.auth.existingSecret .Values.r2.auth.name (printf "%s-r2" (include "kubecert.fullname" .)) -}}
+{{- end -}}
+
 {{- define "kubecert.postgresqlSecretName" -}}
 {{- coalesce .Values.postgresql.auth.existingSecret .Values.postgresql.auth.name (printf "%s-postgresql" .Release.Name) -}}
 {{- end -}}
@@ -177,6 +181,31 @@ imagePullSecrets:
     secretKeyRef:
       name: {{ include "kubecert.appSecretName" . }}
       key: {{ .Values.secrets.app.jwtSecretKey }}
+{{- end -}}
+
+{{- define "kubecert.r2Env" -}}
+{{- if .Values.r2.enabled }}
+- name: CERT_R2_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "kubecert.r2SecretName" . }}
+      key: {{ .Values.r2.auth.accessKeyIdKey }}
+- name: CERT_R2_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "kubecert.r2SecretName" . }}
+      key: {{ .Values.r2.auth.secretAccessKeyKey }}
+- name: R2_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "kubecert.r2SecretName" . }}
+      key: {{ .Values.r2.auth.accessKeyIdKey }}
+- name: R2_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "kubecert.r2SecretName" . }}
+      key: {{ .Values.r2.auth.secretAccessKeyKey }}
+{{- end }}
 {{- end -}}
 
 {{- define "kubecert.waitForDependenciesInitContainers" -}}

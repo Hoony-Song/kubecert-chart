@@ -36,3 +36,13 @@ Run `helm dependency build charts/kubecert` before local install or packaging. D
 Use existing Secrets for real deployments, or enable chart-created Secrets only from private local values files.
 
 Do not commit real passwords, SSH keys, JWT secrets, token values, or kubeconfig content.
+
+## Cloudflare R2
+
+Public artifact downloads can use `config.artifactBaseUrl` and direct artifact
+URLs without R2 credentials. If a workload must access private R2 objects, set
+`r2.enabled=true` and provide an existing Secret through `r2.auth.existingSecret`.
+
+The chart injects `CERT_R2_ACCESS_KEY_ID`, `CERT_R2_SECRET_ACCESS_KEY`,
+`R2_ACCESS_KEY_ID`, and `R2_SECRET_ACCESS_KEY` into backend workloads when R2
+is enabled. Do not put raw R2 keys in public values.

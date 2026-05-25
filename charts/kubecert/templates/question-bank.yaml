@@ -95,6 +95,7 @@ spec:
               value: {{ .Values.questionBank.artifactSha256 | quote }}
             - name: CERT_QUESTION_BANK_ROOT
               value: {{ .Values.questionBank.mountPath | quote }}
+            {{- include "kubecert.r2Env" . | nindent 12 }}
           volumeMounts:
             - name: sync-script
               mountPath: /etc/kubecert/question-bank

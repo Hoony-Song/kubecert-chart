@@ -54,7 +54,13 @@ data:
   CERT_CLEANUP_INTERVAL_SECONDS: {{ .Values.config.backend.cleanupIntervalSeconds | quote }}
   CERT_GRADE_THREADS: {{ .Values.config.backend.gradeThreads | quote }}
   CERT_SESSION_THREADS: {{ .Values.config.backend.sessionThreads | quote }}
-  CERT_S3_ENDPOINT_URL: {{ .Values.config.s3.endpointUrl | quote }}
-  CERT_S3_BUCKET: {{ .Values.config.s3.bucket | quote }}
-  CERT_S3_REGION: {{ .Values.config.s3.region | quote }}
-  CERT_S3_FORCE_PATH_STYLE: {{ .Values.config.s3.forcePathStyle | quote }}
+  CERT_R2_ENABLED: {{ .Values.r2.enabled | quote }}
+  CERT_R2_PUBLIC_BASE_URL: {{ .Values.r2.publicBaseUrl | quote }}
+  CERT_R2_ENDPOINT: {{ .Values.r2.endpointUrl | quote }}
+  CERT_R2_BUCKET: {{ .Values.r2.bucket | quote }}
+  CERT_R2_REGION: {{ .Values.r2.region | quote }}
+  CERT_R2_FORCE_PATH_STYLE: {{ .Values.r2.forcePathStyle | quote }}
+  R2_PUBLIC_BASE_URL: {{ .Values.r2.publicBaseUrl | quote }}
+  R2_ENDPOINT: {{ .Values.r2.endpointUrl | quote }}
+  R2_BUCKET: {{ .Values.r2.bucket | quote }}
+  R2_REGION: {{ .Values.r2.region | quote }}

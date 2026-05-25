@@ -42,6 +42,29 @@
         }
       }
     },
+    "r2": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "publicBaseUrl": { "type": "string" },
+        "endpointUrl": { "type": "string" },
+        "bucket": { "type": "string" },
+        "region": { "type": "string" },
+        "forcePathStyle": { "type": "boolean" },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "create": { "type": "boolean" },
+            "name": { "type": "string" },
+            "existingSecret": { "type": "string" },
+            "accessKeyIdKey": { "type": "string" },
+            "secretAccessKeyKey": { "type": "string" },
+            "accessKeyIdValue": { "type": "string" },
+            "secretAccessKeyValue": { "type": "string" }
+          }
+        }
+      }
+    },
     "postgresql": {
       "type": "object",
       "properties": {

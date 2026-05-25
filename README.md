@@ -111,7 +111,16 @@ Secrets:
 - `secrets.existingSecret` or chart-supported app secret creation inputs
 - `secrets.runtimeSsh.existingSecret`
 - `secrets.terminalSsh.existingSecret`
+- `r2.auth.existingSecret` when `r2.enabled=true`
 - external PostgreSQL/Redis credential Secret names when using external mode
+
+R2, when private object access is enabled:
+
+- `r2.enabled=true`
+- `r2.publicBaseUrl`
+- `r2.endpointUrl`
+- `r2.bucket`
+- `r2.auth.existingSecret`
 
 External services, when enabled:
 
