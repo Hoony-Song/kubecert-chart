@@ -28,6 +28,7 @@ config:
     adminApiBaseUrl: https://api.example.com
 
 postgresql:
+  enabled: false
   mode: external
   external:
     host: postgres.example.internal
@@ -35,6 +36,7 @@ postgresql:
     existingSecret: kubecert-postgresql
 
 redis:
+  enabled: false
   mode: external
   external:
     host: redis.example.internal
@@ -42,6 +44,8 @@ redis:
 
 keda:
   mode: external
+kedaOperator:
+  enabled: false
 
 questionBank:
   artifactUrl: https://artifacts.example.com/runtime/question-bank/kubecert-question-bank-prod.tar.gz

@@ -1,8 +1,13 @@
 postgresql:
+  enabled: true
   mode: bundled
 
 redis:
+  enabled: true
   mode: bundled
+
+kedaOperator:
+  enabled: true
 
 keda:
   mode: bundled

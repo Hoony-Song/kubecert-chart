@@ -92,11 +92,11 @@ imagePullSecrets:
 {{- end -}}
 
 {{- define "kubecert.postgresqlSecretName" -}}
-{{- coalesce .Values.postgresql.auth.existingSecret .Values.postgresql.auth.name (printf "%s-postgresql" (include "kubecert.fullname" .)) -}}
+{{- coalesce .Values.postgresql.auth.existingSecret .Values.postgresql.auth.name (printf "%s-postgresql" .Release.Name) -}}
 {{- end -}}
 
 {{- define "kubecert.redisSecretName" -}}
-{{- coalesce .Values.redis.auth.existingSecret .Values.redis.auth.name (printf "%s-redis" (include "kubecert.fullname" .)) -}}
+{{- coalesce .Values.redis.auth.existingSecret .Values.redis.auth.name (printf "%s-redis" .Release.Name) -}}
 {{- end -}}
 
 {{- define "kubecert.postgresqlHost" -}}
@@ -167,7 +167,7 @@ imagePullSecrets:
   valueFrom:
     secretKeyRef:
       name: {{ include "kubecert.redisSecretName" . }}
-      key: {{ .Values.redis.auth.passwordKey }}
+      key: {{ coalesce .Values.redis.auth.passwordKey .Values.redis.auth.existingSecretPasswordKey "redis-password" }}
 {{- end }}
 {{- end -}}
 

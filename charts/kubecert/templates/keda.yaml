@@ -11,7 +11,7 @@ spec:
   secretTargetRef:
     - parameter: password
       name: {{ include "kubecert.redisSecretName" . }}
-      key: {{ .Values.redis.auth.passwordKey }}
+      key: {{ coalesce .Values.redis.auth.passwordKey .Values.redis.auth.existingSecretPasswordKey "redis-password" }}
 ---
 {{- end }}
 {{- $root := . -}}

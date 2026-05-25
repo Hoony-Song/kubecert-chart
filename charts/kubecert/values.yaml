@@ -134,38 +134,65 @@ secrets:
     secretAccessKeyValue: ""
 
 postgresql:
+  enabled: true
   mode: bundled
   auth:
     create: false
     name: ""
-    existingSecret: kubecert-postgresql
+    existingSecret: ""
     username: kubecert
     database: kubecert
     passwordKey: password
     password: ""
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+      replicationPasswordKey: replication-password
   bundled:
     host: ""
     port: 5432
+    persistence:
+      enabled: true
+      size: 10Gi
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
   external:
     host: ""
     port: 5432
 
 redis:
+  enabled: true
   mode: bundled
+  architecture: standalone
   database: "0"
   auth:
     enabled: true
     create: false
     name: ""
-    existingSecret: kubecert-redis
-    passwordKey: password
+    existingSecret: ""
+    existingSecretPasswordKey: ""
+    passwordKey: redis-password
     password: ""
   bundled:
     host: ""
     port: 6379
+    persistence:
+      enabled: true
+      size: 8Gi
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
   external:
     host: ""
     port: 6379
+
+kedaOperator:
+  enabled: true
+  crds:
+    install: true
 
 keda:
   mode: bundled

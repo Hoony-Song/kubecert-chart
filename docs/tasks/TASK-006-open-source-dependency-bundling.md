@@ -63,3 +63,66 @@ helm template kubecert charts/kubecert -f examples/external-services/values.yaml
 
 - Record dependency versions.
 - Record bundled/external mode assumptions.
+
+## Status
+
+Completed.
+
+## Dependency Versions
+
+The chart now defines these Helm dependencies in `charts/kubecert/Chart.yaml`:
+
+| Dependency | Repository | Version | Condition |
+|---|---|---:|---|
+| `postgresql` | `https://charts.bitnami.com/bitnami` | `18.6.7` | `postgresql.enabled` |
+| `redis` | `https://charts.bitnami.com/bitnami` | `25.5.3` | `redis.enabled` |
+| `keda` as `kedaOperator` | `https://kedacore.github.io/charts` | `2.19.0` | `kedaOperator.enabled` |
+
+`Chart.lock` was regenerated with `helm dependency build charts/kubecert`.
+
+Dependency archives under `charts/kubecert/charts/*.tgz` are ignored source build outputs. They are recreated by `helm dependency build` and included in packaged chart release artifacts by the chart release flow.
+
+## Bundled Mode
+
+- `postgresql.enabled=true`
+- `postgresql.mode=bundled`
+- `redis.enabled=true`
+- `redis.mode=bundled`
+- `kedaOperator.enabled=true`
+- `keda.mode=bundled`
+
+Bundled mode is the expected default for disposable dev clusters.
+
+## External Mode
+
+- `postgresql.enabled=false`
+- `postgresql.mode=external`
+- `postgresql.external.host` points to the existing service.
+- `redis.enabled=false`
+- `redis.mode=external`
+- `redis.external.host` points to the existing service.
+- `kedaOperator.enabled=false`
+- `keda.mode=external` when KEDA is already installed.
+
+External service credentials are passed through existing Secret references. Public examples only contain placeholder names.
+
+## Validation Result
+
+2026-05-26:
+
+- `helm repo update`
+  - Passed.
+- `helm search repo bitnami/postgresql --versions`
+  - Selected `18.6.7`.
+- `helm search repo bitnami/redis --versions`
+  - Selected `25.5.3`.
+- `helm search repo kedacore/keda --versions`
+  - Selected `2.19.0`.
+- `helm dependency build charts/kubecert`
+  - Passed and saved PostgreSQL, Redis, and KEDA dependency archives locally.
+- `helm lint charts/kubecert`
+  - Passed: 1 chart linted, 0 failed. Helm reported only the optional icon recommendation.
+- `helm template kubecert charts/kubecert -f examples/dev/values.yaml`
+  - Passed and rendered bundled PostgreSQL, Redis, KEDA, and app workloads.
+- `helm template kubecert charts/kubecert -f examples/external-services/values.yaml`
+  - Passed with bundled dependencies disabled.

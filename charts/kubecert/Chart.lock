@@ -1,0 +1,12 @@
+dependencies:
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.6.7
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 25.5.3
+- name: keda
+  repository: https://kedacore.github.io/charts
+  version: 2.19.0
+digest: sha256:737cbdeecd726ab3ee2a0c7880280d1c65e8dfa77f7ca64b3283506db10e8d95
+generated: "2026-05-26T03:08:38.579745801+09:00"

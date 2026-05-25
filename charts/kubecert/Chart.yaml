@@ -16,3 +16,17 @@ keywords:
   - cks
 maintainers:
   - name: Hoony-Song
+dependencies:
+  - name: postgresql
+    version: 18.6.7
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 25.5.3
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: keda
+    alias: kedaOperator
+    version: 2.19.0
+    repository: https://kedacore.github.io/charts
+    condition: kedaOperator.enabled

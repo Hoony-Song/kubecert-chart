@@ -21,7 +21,15 @@ The default `values.yaml` intentionally leaves those empty.
 
 ## Dependency Modes
 
-PostgreSQL, Redis, and KEDA are modeled with bundled and external modes. The first migration renders the application workload contract; dependency chart packaging is normalized by the follow-up dependency task.
+PostgreSQL, Redis, and KEDA are modeled with bundled and external modes.
+
+Bundled mode uses Helm dependencies:
+
+- Bitnami PostgreSQL
+- Bitnami Redis
+- KEDA
+
+Run `helm dependency build charts/kubecert` before local install or packaging. Dependency archives are build/release outputs and are not committed to source.
 
 ## Secrets
 
