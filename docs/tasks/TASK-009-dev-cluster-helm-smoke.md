@@ -69,3 +69,54 @@ helm upgrade --install kubecert charts/kubecert \
 
 - Record smoke test result summary.
 - Record any dev cloud cluster prerequisites.
+
+## Status
+
+Prepared. Actual cluster install is pending private dev values and published dev images/artifacts.
+
+## Implemented Files
+
+- `docs/operations/dev-helm-smoke.md`
+  - Documents preflight, install, smoke checklist, and uninstall/reinstall commands.
+- `scripts/ci/helm-dev-smoke-preflight.sh`
+  - Runs dependency build, lint, placeholder scan, and Helm dry-run.
+  - Requires kubeconfig and private values file paths outside Git.
+  - Refuses public placeholder values by default.
+
+## Dev Cluster Prerequisites
+
+- Disposable public cloud Kubernetes cluster.
+- Kubeconfig stored outside Git.
+- Private dev values file stored outside Git.
+- Dev image tags/digests from `kubecert` release metadata.
+- Question-bank artifact URL and sha256.
+- Runtime artifact manifest URL and sha256 when Runtime Node join is tested.
+- Existing Secrets or private local values for:
+  - app JWT secret
+  - initial admin credentials
+  - Runtime SSH key
+  - Terminal SSH key
+  - external DB/Redis credentials when external mode is used
+
+## Smoke Result
+
+Actual `helm upgrade --install` was not executed in this task because this public chart repository does not contain real dev image tags, artifact URLs, kubeconfig, or private values. Running with public placeholders would test only invalid placeholder deployment.
+
+The chart is ready for a real dev smoke once private values are supplied.
+
+## Validation Result
+
+2026-05-26:
+
+- `bash -n scripts/ci/helm-dev-smoke-preflight.sh`
+  - Passed.
+- `scripts/ci/helm-dev-smoke-preflight.sh --help`
+  - Passed.
+- `helm dependency build charts/kubecert`
+  - Passed.
+- `helm lint charts/kubecert -f examples/dev/values.yaml`
+  - Passed: 1 chart linted, 0 failed. Helm reported only the optional icon recommendation.
+- `helm template kubecert charts/kubecert -f examples/dev/values.yaml`
+  - Passed.
+- `scripts/ci/helm-dev-smoke-preflight.sh --kubeconfig /root/Certifications/dev-config --values examples/dev/values.yaml`
+  - Passed as an expected safety rejection: public placeholder values are refused before any dry-run install.
