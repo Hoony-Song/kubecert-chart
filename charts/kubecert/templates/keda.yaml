@@ -1,4 +1,6 @@
-{{- if ne .Values.keda.mode "disabled" }}
+{{- $hasScaledObjectApi := .Capabilities.APIVersions.Has "keda.sh/v1alpha1/ScaledObject" -}}
+{{- $hasTriggerAuthApi := .Capabilities.APIVersions.Has "keda.sh/v1alpha1/TriggerAuthentication" -}}
+{{- if and (ne .Values.keda.mode "disabled") $hasScaledObjectApi $hasTriggerAuthApi }}
 {{- $authName := default (printf "%s-worker-redis" (include "kubecert.fullname" .)) .Values.keda.triggerAuthenticationName -}}
 {{- if .Values.redis.auth.enabled }}
 apiVersion: keda.sh/v1alpha1

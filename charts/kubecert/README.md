@@ -31,6 +31,10 @@ Bundled mode uses Helm dependencies:
 
 Run `helm dependency build charts/kubecert` before local install or packaging. Dependency archives are build/release outputs and are not committed to source.
 
+KEDA ScaledObjects are rendered only when the target cluster already reports the
+KEDA CRDs. On a new cluster, the first Helm install can install the bundled KEDA
+operator/CRDs, and the next Helm upgrade creates the ScaledObjects.
+
 ## Secrets
 
 Use existing Secrets for real deployments, or enable chart-created Secrets only from private local values files.

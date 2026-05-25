@@ -37,6 +37,10 @@ helm upgrade --install kubecert charts/kubecert \
   --timeout 15m
 ```
 
+On a fresh cluster with bundled KEDA, run the same Helm command a second time
+after the first install succeeds. The first install adds KEDA CRDs; the second
+upgrade renders the Kubecert ScaledObjects.
+
 ## Smoke Checklist
 
 - All Pods become Ready.
