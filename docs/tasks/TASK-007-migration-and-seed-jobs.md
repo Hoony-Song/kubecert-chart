@@ -64,3 +64,50 @@ helm template kubecert charts/kubecert -f examples/dev/values.yaml | rg -n "kind
 
 - Record migration/seed commands.
 - Record hook/order behavior.
+
+## Status
+
+Completed.
+
+## Job Behavior
+
+- Migration Job:
+  - Template: `charts/kubecert/templates/db-jobs.yaml`
+  - Name: `<release>-kubecert-db-migrate`
+  - Hook: `post-install,post-upgrade`
+  - Hook weight: `-20`
+  - Command:
+
+```bash
+python -m app.migration_adopt && alembic upgrade head
+```
+
+- Seed Job:
+  - Template: `charts/kubecert/templates/db-jobs.yaml`
+  - Name: `<release>-kubecert-db-seed`
+  - Hook: `post-install,post-upgrade`
+  - Hook weight: `-10`
+  - Command:
+
+```bash
+python -m app.seed
+```
+
+The seed Job runs after migration by hook weight ordering. Both Jobs use the same API image tag/digest as the release.
+
+## Secret and Env Contract
+
+- Both Jobs use the chart DB env helper and support bundled/external PostgreSQL.
+- Seed reads `CERT_INITIAL_ADMIN_USERNAME` and `CERT_INITIAL_ADMIN_PASSWORD` from the configured admin Secret.
+- Public values do not contain secret values. Real deployments must provide existing Secrets or private local values enabling temporary Secret creation.
+
+## Validation Result
+
+2026-05-26:
+
+- `helm template kubecert charts/kubecert -f examples/dev/values.yaml | rg -n "kind: Job|migration|seed"`
+  - Passed: migration and seed Jobs render.
+- `helm template kubecert charts/kubecert -f examples/external-services/values.yaml | rg -n "kind: Job|migration|seed"`
+  - Passed: Jobs render with external PostgreSQL values.
+- `helm lint charts/kubecert`
+  - Passed: 1 chart linted, 0 failed. Helm reported only the optional icon recommendation.
