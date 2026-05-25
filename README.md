@@ -127,3 +127,20 @@ example values.
 Real dev/prod values should live outside this public repository, for example in
 a local encrypted store, CI secret-backed file, or another private operations
 repository.
+
+## Release
+
+Chart releases are packaged from this repository and can be published as a
+GitHub Pages Helm repository.
+
+```bash
+scripts/release/package-chart.sh \
+  --destination /tmp/kubecert-chart-dist \
+  --repo-url https://Hoony-Song.github.io/kubecert-chart
+```
+
+The release script builds dependencies, lints, packages, validates that
+PostgreSQL/Redis/KEDA dependency charts are bundled, scans for private file
+names and key markers, and generates `index.yaml`.
+
+See `docs/operations/chart-release.md` for the publication flow.
