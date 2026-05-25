@@ -1,0 +1,18 @@
+apiVersion: v2
+name: kubecert
+description: Helm chart for the Kubecert exam platform
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/Hoony-Song/kubecert-chart
+sources:
+  - https://github.com/Hoony-Song/kubecert-chart
+keywords:
+  - kubernetes
+  - certification
+  - exam
+  - cka
+  - ckad
+  - cks
+maintainers:
+  - name: Hoony-Song

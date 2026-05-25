@@ -1,0 +1,89 @@
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+images:
+  api:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  worker:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  terminalGateway:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  examWeb:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  adminWeb:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+
+config:
+  publicApiUrl: ""
+  artifactBaseUrl: ""
+  runtimeNodeInstallerUrl: ""
+  runtimeNodeManifestUrl: ""
+  frontend:
+    examApiBaseUrl: ""
+    adminApiBaseUrl: ""
+
+secrets:
+  create: false
+  existingSecret: ""
+  runtimeSsh:
+    existingSecret: ""
+    privateKeyKey: id_ed25519
+    publicKeyKey: id_ed25519.pub
+  terminalSsh:
+    existingSecret: ""
+    privateKeyKey: runtime_admin_key
+    publicKeyKey: runtime_admin_key.pub
+
+postgresql:
+  mode: bundled
+  external:
+    host: ""
+    port: 5432
+    database: kubecert
+    existingSecret: ""
+    usernameKey: username
+    passwordKey: password
+
+redis:
+  mode: bundled
+  external:
+    host: ""
+    port: 6379
+    existingSecret: ""
+    passwordKey: password
+
+keda:
+  mode: bundled
+
+migrations:
+  enabled: true
+
+seed:
+  enabled: true
+
+questionBank:
+  mode: artifact
+  artifactUrl: ""
+  artifactSha256: ""
+
+ingress:
+  enabled: false
+  className: ""
+  hosts:
+    exam: ""
+    admin: ""
+    api: ""
+  tls:
+    enabled: false
+    secretName: ""

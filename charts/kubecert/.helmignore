@@ -1,0 +1,16 @@
+.git/
+.github/
+.DS_Store
+*.swp
+*.swo
+*.tmp
+*.bak
+*.log
+*.jsonl
+.env
+.env.*
+*.pem
+*.key
+id_ed25519
+cert-ssh
+cert-ssh.pub

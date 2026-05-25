@@ -1,0 +1,17 @@
+postgresql:
+  mode: external
+  external:
+    host: postgres.example.internal
+    port: 5432
+    database: kubecert
+    existingSecret: kubecert-postgresql
+
+redis:
+  mode: external
+  external:
+    host: redis.example.internal
+    port: 6379
+    existingSecret: kubecert-redis
+
+keda:
+  mode: external

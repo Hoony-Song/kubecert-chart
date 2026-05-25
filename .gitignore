@@ -1,0 +1,34 @@
+# Secrets and credentials
+*.pem
+*.key
+id_ed25519
+id_ed25519.pub
+cert-ssh
+cert-ssh.pub
+*.kubeconfig
+kubeconfig
+.env
+.env.*
+!.env.example
+
+# Helm build outputs
+*.tgz
+index.yaml
+charts/*/charts/*.tgz
+
+# Local dependencies and build outputs
+.venv/
+venv/
+node_modules/
+dist/
+build/
+.cache/
+
+# OS/editor noise
+.DS_Store
+*.swp
+*.swo
+
+# Logs
+*.log
+*.jsonl

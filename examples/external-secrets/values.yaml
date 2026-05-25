@@ -1,0 +1,7 @@
+secrets:
+  create: false
+  existingSecret: kubecert-app
+  runtimeSsh:
+    existingSecret: kubecert-runtime-ssh
+  terminalSsh:
+    existingSecret: kubecert-terminal-ssh

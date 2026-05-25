@@ -1,0 +1,59 @@
+# Public placeholder production override.
+# Keep real production values outside this public repository.
+
+images:
+  api:
+    repository: example.registry.local/kubecert-api
+    tag: prod-placeholder
+  worker:
+    repository: example.registry.local/kubecert-api
+    tag: prod-placeholder
+  terminalGateway:
+    repository: example.registry.local/kubecert-api
+    tag: prod-placeholder
+  examWeb:
+    repository: example.registry.local/kubecert-exam-web
+    tag: prod-placeholder
+  adminWeb:
+    repository: example.registry.local/kubecert-admin-web
+    tag: prod-placeholder
+
+config:
+  publicApiUrl: https://api.example.com
+  artifactBaseUrl: https://artifacts.example.com
+  runtimeNodeInstallerUrl: https://artifacts.example.com/runtime/installer/install.sh
+  runtimeNodeManifestUrl: https://artifacts.example.com/runtime/manifests/runtime-node-prod.json
+  frontend:
+    examApiBaseUrl: https://api.example.com
+    adminApiBaseUrl: https://api.example.com
+
+postgresql:
+  mode: external
+  external:
+    host: postgres.example.internal
+    database: kubecert
+    existingSecret: kubecert-postgresql
+
+redis:
+  mode: external
+  external:
+    host: redis.example.internal
+    existingSecret: kubecert-redis
+
+keda:
+  mode: external
+
+questionBank:
+  artifactUrl: https://artifacts.example.com/runtime/question-bank/kubecert-question-bank-prod.tar.gz
+  artifactSha256: replace-with-prod-sha256
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    exam: exam.example.com
+    admin: admin.example.com
+    api: api.example.com
+  tls:
+    enabled: true
+    secretName: kubecert-tls

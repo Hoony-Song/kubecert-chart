@@ -1,1 +1,121 @@
 # kubecert-chart
+
+Public Helm chart repository for Kubecert.
+
+This repository contains only chart source, public documentation, example
+values, and chart publication tooling. Private application source code lives in
+the `kubecert` repository.
+
+## Layout
+
+```text
+charts/
+  kubecert/             Helm chart source
+examples/
+  dev/                  Public placeholder development values
+  prod/                 Public placeholder production values
+  bundled/              Install examples with bundled dependencies
+  external-secrets/     Install examples using pre-created Kubernetes Secrets
+  external-services/    Install examples using external PostgreSQL/Redis/KEDA
+docs/
+  architecture/         Chart design notes
+  operations/           Public install and upgrade guidance
+  tasks/                Chart task series starting at TASK-001
+scripts/
+  ci/                   Lint/render helpers
+  release/              Chart packaging and repository index helpers
+tests/
+  render/               Helm template golden/render tests
+```
+
+## Safety
+
+Do not commit real secrets, private keys, token values, kubeconfigs, generated
+session data, or private application source code.
+
+## Values Model
+
+`charts/kubecert/values.yaml` contains only safe generic defaults. It must not
+contain environment-specific hosts, domains, public URLs, artifact URLs, image
+repositories, production secret values, or kubeconfig paths.
+
+Install with an environment override file:
+
+```bash
+helm upgrade --install kubecert charts/kubecert \
+  --namespace kubecert \
+  --create-namespace \
+  -f examples/dev/values.yaml
+```
+
+Production uses the same chart with a production override file kept outside this
+public repository when it contains private environment data:
+
+```bash
+helm upgrade --install kubecert charts/kubecert \
+  --namespace kubecert \
+  -f /secure/kubecert/values-prod.yaml
+```
+
+Helm override order is:
+
+```text
+charts/kubecert/values.yaml
+-> environment values file
+-> --set overrides
+```
+
+## Required Overrides
+
+Every real deployment must set these values through a dev/prod values file or
+another secure values source.
+
+Images:
+
+- `images.api.repository`
+- `images.api.tag`
+- `images.worker.repository`
+- `images.worker.tag`
+- `images.terminalGateway.repository`
+- `images.terminalGateway.tag`
+- `images.examWeb.repository`
+- `images.examWeb.tag`
+- `images.adminWeb.repository`
+- `images.adminWeb.tag`
+
+Public URLs and hosts:
+
+- `config.publicApiUrl`
+- `config.artifactBaseUrl`
+- `config.frontend.examApiBaseUrl`
+- `config.frontend.adminApiBaseUrl`
+- `ingress.hosts.exam` when `ingress.enabled=true`
+- `ingress.hosts.admin` when `ingress.enabled=true`
+- `ingress.hosts.api` when `ingress.enabled=true`
+- `ingress.className` when the cluster requires a specific ingress class
+- `ingress.tls.secretName` when `ingress.tls.enabled=true`
+
+Runtime and artifacts:
+
+- `config.runtimeNodeInstallerUrl`
+- `config.runtimeNodeManifestUrl`
+- `questionBank.artifactUrl`
+- `questionBank.artifactSha256`
+
+Secrets:
+
+- `secrets.existingSecret` or chart-supported app secret creation inputs
+- `secrets.runtimeSsh.existingSecret`
+- `secrets.terminalSsh.existingSecret`
+- external PostgreSQL/Redis credential Secret names when using external mode
+
+External services, when enabled:
+
+- `postgresql.external.host` when `postgresql.mode=external`
+- `postgresql.external.database`
+- `postgresql.external.existingSecret`
+- `redis.external.host` when `redis.mode=external`
+- `redis.external.existingSecret`
+
+Do not put raw private keys, tokens, passwords, or kubeconfig content in public
+example values.

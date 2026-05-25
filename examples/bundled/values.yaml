@@ -1,0 +1,8 @@
+postgresql:
+  mode: bundled
+
+redis:
+  mode: bundled
+
+keda:
+  mode: bundled

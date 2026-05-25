@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "images": {
+      "type": "object",
+      "properties": {
+        "api": { "$ref": "#/definitions/image" },
+        "worker": { "$ref": "#/definitions/image" },
+        "terminalGateway": { "$ref": "#/definitions/image" },
+        "examWeb": { "$ref": "#/definitions/image" },
+        "adminWeb": { "$ref": "#/definitions/image" }
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "publicApiUrl": { "type": "string" },
+        "artifactBaseUrl": { "type": "string" },
+        "runtimeNodeInstallerUrl": { "type": "string" },
+        "runtimeNodeManifestUrl": { "type": "string" },
+        "frontend": {
+          "type": "object",
+          "properties": {
+            "examApiBaseUrl": { "type": "string" },
+            "adminApiBaseUrl": { "type": "string" }
+          }
+        }
+      }
+    },
+    "postgresql": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["bundled", "external"]
+        }
+      }
+    },
+    "redis": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["bundled", "external"]
+        }
+      }
+    },
+    "keda": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["bundled", "external", "disabled"]
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "className": { "type": "string" },
+        "hosts": {
+          "type": "object",
+          "properties": {
+            "exam": { "type": "string" },
+            "admin": { "type": "string" },
+            "api": { "type": "string" }
+          }
+        },
+        "tls": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "secretName": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": { "type": "string" },
+        "tag": { "type": "string" },
+        "pullPolicy": { "type": "string" }
+      }
+    }
+  }
+}
