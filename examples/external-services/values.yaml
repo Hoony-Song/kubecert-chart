@@ -6,6 +6,11 @@ postgresql:
     port: 5432
     database: kubecert
     existingSecret: kubecert-postgresql
+  auth:
+    existingSecret: kubecert-postgresql
+    username: kubecert
+    database: kubecert
+    passwordKey: password
 
 redis:
   enabled: false
@@ -14,6 +19,9 @@ redis:
     host: redis.example.internal
     port: 6379
     existingSecret: kubecert-redis
+  auth:
+    existingSecret: kubecert-redis
+    passwordKey: password
 
 keda:
   mode: external

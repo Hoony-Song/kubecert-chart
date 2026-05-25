@@ -3,20 +3,35 @@
 
 images:
   api:
-    repository: example.registry.local/kubecert-api
-    tag: dev-placeholder
+    repository: registry.dev.example.com/kubecert-api
+    tag: dev-replace-with-shortsha-timestamp
+    digest: ""
   worker:
-    repository: example.registry.local/kubecert-api
-    tag: dev-placeholder
+    repository: registry.dev.example.com/kubecert-worker
+    tag: dev-replace-with-shortsha-timestamp
+    digest: ""
   terminalGateway:
-    repository: example.registry.local/kubecert-api
-    tag: dev-placeholder
+    repository: registry.dev.example.com/kubecert-terminal-gateway
+    tag: dev-replace-with-shortsha-timestamp
+    digest: ""
   examWeb:
-    repository: example.registry.local/kubecert-exam-web
-    tag: dev-placeholder
+    repository: registry.dev.example.com/kubecert-exam-web
+    tag: dev-replace-with-shortsha-timestamp
+    digest: ""
   adminWeb:
-    repository: example.registry.local/kubecert-admin-web
-    tag: dev-placeholder
+    repository: registry.dev.example.com/kubecert-admin-web
+    tag: dev-replace-with-shortsha-timestamp
+    digest: ""
+
+secrets:
+  app:
+    existingSecret: kubecert-app
+  admin:
+    existingSecret: kubecert-admin
+  runtimeSsh:
+    existingSecret: kubecert-runtime-ssh
+  terminalSsh:
+    existingSecret: kubecert-terminal-ssh
 
 config:
   publicApiUrl: https://api.dev.example.com
@@ -42,7 +57,7 @@ keda:
   mode: bundled
 
 questionBank:
-  artifactUrl: https://artifacts.dev.example.com/runtime/question-bank/kubecert-question-bank-dev.tar.gz
+  artifactUrl: https://artifacts.dev.example.com/question-bank/kubecert-question-bank-dev.tar.gz
   artifactSha256: replace-with-dev-sha256
 
 ingress:

@@ -62,3 +62,37 @@ rg -n "sweetlabs|192\\.168|BEGIN .*PRIVATE KEY|kubeconfig" examples README.md
 
 - Record values overlay rules.
 - Record render result summary.
+
+## Status
+
+Completed.
+
+## Overlay Rules
+
+- `examples/dev/values.yaml`
+  - Uses bundled PostgreSQL, Redis, and KEDA defaults.
+  - Uses `dev-replace-with-shortsha-timestamp` placeholder tags.
+  - Uses placeholder dev hosts under `*.dev.example.com`.
+  - References placeholder existing Secret names but never stores Secret values.
+- `examples/prod/values.yaml`
+  - Uses external PostgreSQL, Redis, and KEDA mode.
+  - Uses production-style `vYYYYMMDD-release-rN` placeholder tags.
+  - Shows digest pinning fields with zero placeholder digests that must be replaced.
+  - References placeholder existing Secret names but never stores Secret values.
+- `examples/external-services/values.yaml`
+  - Documents the external service mode and password key contract.
+
+Real dev/prod values must stay outside this public repository. Public examples are renderable placeholders only.
+
+## Validation Result
+
+2026-05-26:
+
+- `helm template kubecert charts/kubecert -f examples/dev/values.yaml`
+  - Passed.
+- `helm template kubecert charts/kubecert -f examples/prod/values.yaml`
+  - Passed.
+- `helm template kubecert charts/kubecert -f examples/external-services/values.yaml`
+  - Passed.
+- `rg -n "sweetlabs|192\\.168|BEGIN .*PRIVATE KEY|kubeconfig" examples README.md`
+  - No secret/key/IP/domain values found. Only public safety text mentions kubeconfig.

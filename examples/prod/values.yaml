@@ -3,20 +3,35 @@
 
 images:
   api:
-    repository: example.registry.local/kubecert-api
-    tag: prod-placeholder
+    repository: registry.example.com/kubecert-api
+    tag: vYYYYMMDD-release-rN
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   worker:
-    repository: example.registry.local/kubecert-api
-    tag: prod-placeholder
+    repository: registry.example.com/kubecert-worker
+    tag: vYYYYMMDD-release-rN
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   terminalGateway:
-    repository: example.registry.local/kubecert-api
-    tag: prod-placeholder
+    repository: registry.example.com/kubecert-terminal-gateway
+    tag: vYYYYMMDD-release-rN
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   examWeb:
-    repository: example.registry.local/kubecert-exam-web
-    tag: prod-placeholder
+    repository: registry.example.com/kubecert-exam-web
+    tag: vYYYYMMDD-release-rN
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   adminWeb:
-    repository: example.registry.local/kubecert-admin-web
-    tag: prod-placeholder
+    repository: registry.example.com/kubecert-admin-web
+    tag: vYYYYMMDD-release-rN
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+
+secrets:
+  app:
+    existingSecret: kubecert-app
+  admin:
+    existingSecret: kubecert-admin
+  runtimeSsh:
+    existingSecret: kubecert-runtime-ssh
+  terminalSsh:
+    existingSecret: kubecert-terminal-ssh
 
 config:
   publicApiUrl: https://api.example.com
@@ -34,6 +49,11 @@ postgresql:
     host: postgres.example.internal
     database: kubecert
     existingSecret: kubecert-postgresql
+  auth:
+    existingSecret: kubecert-postgresql
+    username: kubecert
+    database: kubecert
+    passwordKey: password
 
 redis:
   enabled: false
@@ -41,6 +61,9 @@ redis:
   external:
     host: redis.example.internal
     existingSecret: kubecert-redis
+  auth:
+    existingSecret: kubecert-redis
+    passwordKey: password
 
 keda:
   mode: external
@@ -48,7 +71,7 @@ kedaOperator:
   enabled: false
 
 questionBank:
-  artifactUrl: https://artifacts.example.com/runtime/question-bank/kubecert-question-bank-prod.tar.gz
+  artifactUrl: https://artifacts.example.com/question-bank/kubecert-question-bank-prod.tar.gz
   artifactSha256: replace-with-prod-sha256
 
 ingress:
