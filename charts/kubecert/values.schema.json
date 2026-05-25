@@ -2,6 +2,16 @@
   "$schema": "https://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "global": {
+      "type": "object",
+      "properties": {
+        "imageRegistry": { "type": "string" },
+        "imagePullSecrets": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "images": {
       "type": "object",
       "properties": {
@@ -15,6 +25,10 @@
     "config": {
       "type": "object",
       "properties": {
+        "corsOrigins": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "publicApiUrl": { "type": "string" },
         "artifactBaseUrl": { "type": "string" },
         "runtimeNodeInstallerUrl": { "type": "string" },
@@ -55,6 +69,18 @@
         }
       }
     },
+    "questionBank": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "mode": {
+          "type": "string",
+          "enum": ["artifact", "existingClaim"]
+        },
+        "artifactUrl": { "type": "string" },
+        "artifactSha256": { "type": "string" }
+      }
+    },
     "ingress": {
       "type": "object",
       "properties": {
@@ -84,6 +110,7 @@
       "properties": {
         "repository": { "type": "string" },
         "tag": { "type": "string" },
+        "digest": { "type": "string" },
         "pullPolicy": { "type": "string" }
       }
     }

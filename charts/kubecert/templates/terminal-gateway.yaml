@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubecert.terminalGatewayName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "kubecert.terminalGatewayName" . }}
+    app.kubernetes.io/component: terminal-gateway
+spec:
+  replicas: {{ .Values.terminalGateway.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "kubecert.terminalGatewayName" . }}
+      app.kubernetes.io/component: terminal-gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "kubecert.terminalGatewayName" . }}
+        app.kubernetes.io/component: terminal-gateway
+        {{- include "kubecert.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
+      {{- include "kubecert.waitForDependenciesInitContainers" . | nindent 6 }}
+      containers:
+        - name: terminal-gateway
+          image: {{ include "kubecert.image" (dict "root" . "image" .Values.images.terminalGateway) | quote }}
+          imagePullPolicy: {{ .Values.images.terminalGateway.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.terminalGateway.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "kubecert.configMapName" . }}
+          env:
+            {{- include "kubecert.databaseEnv" . | nindent 12 }}
+            {{- include "kubecert.redisEnv" . | nindent 12 }}
+            {{- include "kubecert.jwtEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: terminal-ssh-key
+              mountPath: /etc/cert/ssh
+              readOnly: true
+            - name: runtime-ssh-key
+              mountPath: /etc/cert/runtime
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+          resources:
+            {{- toYaml .Values.terminalGateway.resources | nindent 12 }}
+      volumes:
+        - name: terminal-ssh-key
+          secret:
+            secretName: {{ include "kubecert.terminalSshSecretName" . }}
+            defaultMode: 0400
+        - name: runtime-ssh-key
+          secret:
+            secretName: {{ include "kubecert.runtimeSshSecretName" . }}
+            defaultMode: 0400
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kubecert.terminalGatewayName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "kubecert.terminalGatewayName" . }}
+    app.kubernetes.io/component: terminal-gateway
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "kubecert.terminalGatewayName" . }}
+    app.kubernetes.io/component: terminal-gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

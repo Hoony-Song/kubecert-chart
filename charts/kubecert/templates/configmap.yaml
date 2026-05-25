@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kubecert.configMapName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+data:
+  CERT_CORS_ORIGINS: {{ join "," .Values.config.corsOrigins | quote }}
+  CERT_PUBLIC_API_URL: {{ .Values.config.publicApiUrl | quote }}
+  CERT_ARTIFACT_BASE_URL: {{ .Values.config.artifactBaseUrl | quote }}
+  CERT_RUNTIME_NODE_INSTALLER_PATH: {{ .Values.config.runtimeNodeInstallerPath | quote }}
+  CERT_RUNTIME_NODE_INSTALLER_URL: {{ .Values.config.runtimeNodeInstallerUrl | quote }}
+  CERT_RUNTIME_NODE_MANIFEST_PATH: {{ .Values.config.runtimeNodeManifestPath | quote }}
+  CERT_RUNTIME_NODE_MANIFEST_URL: {{ .Values.config.runtimeNodeManifestUrl | quote }}
+  CERT_FRONTEND_API_BASE_URL: {{ .Values.config.frontend.examApiBaseUrl | quote }}
+  CERT_ADMIN_FRONTEND_API_BASE_URL: {{ .Values.config.frontend.adminApiBaseUrl | quote }}
+  CERT_QUESTION_BANK_ROOT: {{ .Values.questionBank.mountPath | quote }}
+  CERT_RUNTIME_ROOT: {{ .Values.config.runtime.root | quote }}
+  CERT_RUNTIME_HEALTH_SSH_KEY_PATH: {{ .Values.config.runtime.healthSshKeyPath | quote }}
+  CERT_RUNTIME_AUTHORIZED_KEY_PATH: {{ .Values.config.runtime.authorizedKeyPath | quote }}
+  CERT_RUNTIME_VM_ADMIN_SSH_KEY_PATH: {{ .Values.config.runtime.vmAdminSshKeyPath | quote }}
+  CERT_RUNTIME_VM_ADMIN_AUTHORIZED_KEY_PATH: {{ .Values.config.runtime.vmAdminAuthorizedKeyPath | quote }}
+  CERT_BACKEND_ENABLE_SSH: {{ .Values.config.runtime.backendEnableSsh | quote }}
+  CERT_SSH_KEY_PATH: {{ .Values.config.runtime.sshKeyPath | quote }}
+  CERT_TERMINAL_ENABLED: {{ .Values.config.terminal.enabled | quote }}
+  CERT_TERMINAL_SSH_KEY_PATH: {{ .Values.config.terminal.sshKeyPath | quote }}
+  CERT_TERMINAL_SSH_PUBLIC_KEY_PATH: {{ .Values.config.terminal.sshPublicKeyPath | quote }}
+  CERT_TERMINAL_SSH_USER: {{ .Values.config.terminal.sshUser | quote }}
+  CERT_TERMINAL_SSH_PORT: {{ .Values.config.terminal.sshPort | quote }}
+  CERT_RUNTIME_SSH_KEY_PATH: {{ .Values.config.terminal.runtimeSshKeyPath | quote }}
+  CERT_TERMINAL_ALLOWED_ORIGINS: {{ join "," .Values.config.terminal.allowedOrigins | quote }}
+  CERT_TOPOLOGY_MODE: {{ .Values.config.backend.topologyMode | quote }}
+  CERT_TOPOLOGY_STRICT: {{ .Values.config.backend.topologyStrict | quote }}
+  CERT_NODES_CONFIG_PATH: {{ .Values.config.backend.nodesConfigPath | quote }}
+  CERT_WORKER_PROVISION_WAIT_SECONDS: {{ .Values.config.backend.provisionWaitSeconds | quote }}
+  CERT_WORKER_PROVISION_POLL_SECONDS: {{ .Values.config.backend.provisionPollSeconds | quote }}
+  CERT_WORKER_PROVISION_RECOVER_RUNNING_AFTER_SECONDS: {{ .Values.config.backend.provisionRecoverRunningAfterSeconds | quote }}
+  CERT_WORKER_PROVISION_TRANSPORT_RETRIES: {{ .Values.config.backend.provisionTransportRetries | quote }}
+  CERT_WORKER_PROVISION_TRANSPORT_RETRY_SECONDS: {{ .Values.config.backend.provisionTransportRetrySeconds | quote }}
+  CERT_WORKER_EXISTING_PROVISION_WAIT_SECONDS: {{ .Values.config.backend.existingProvisionWaitSeconds | quote }}
+  CERT_WORKER_EXISTING_PROVISION_POLL_SECONDS: {{ .Values.config.backend.existingProvisionPollSeconds | quote }}
+  CERT_WORKER_EXISTING_PROVISION_STALE_SECONDS: {{ .Values.config.backend.existingProvisionStaleSeconds | quote }}
+  CERT_QUESTION_SNAPSHOT_MODE: {{ .Values.config.backend.questionSnapshotMode | quote }}
+  CERT_QUESTION_SNAPSHOT_REFRESH_SECONDS: {{ .Values.config.backend.questionSnapshotRefreshSeconds | quote }}
+  CERT_QUESTION_SNAPSHOT_INCLUDE_PREVIEW: {{ .Values.config.backend.questionSnapshotIncludePreview | quote }}
+  CERT_AUTO_DB_INIT: {{ .Values.config.backend.autoDbInit | quote }}
+  CERT_AUTO_SEED: {{ .Values.config.backend.autoSeed | quote }}
+  CERT_SEED_RUNTIME_NODES: {{ .Values.config.backend.seedRuntimeNodes | quote }}
+  CERT_INITIAL_ADMIN_PASSWORD_RESET: {{ .Values.config.backend.initialAdminPasswordReset | quote }}
+  CERT_BCRYPT_ROUNDS: {{ .Values.config.backend.bcryptRounds | quote }}
+  CERT_ACCESS_TOKEN_EXPIRE_MINUTES: {{ .Values.config.backend.accessTokenExpireMinutes | quote }}
+  CERT_SESSION_TTL_SECONDS: {{ .Values.config.backend.sessionTtlSeconds | quote }}
+  CERT_SESSION_GRACE_SECONDS: {{ .Values.config.backend.sessionGraceSeconds | quote }}
+  CERT_CLEANUP_INTERVAL_SECONDS: {{ .Values.config.backend.cleanupIntervalSeconds | quote }}
+  CERT_GRADE_THREADS: {{ .Values.config.backend.gradeThreads | quote }}
+  CERT_SESSION_THREADS: {{ .Values.config.backend.sessionThreads | quote }}
+  CERT_S3_ENDPOINT_URL: {{ .Values.config.s3.endpointUrl | quote }}
+  CERT_S3_BUCKET: {{ .Values.config.s3.bucket | quote }}
+  CERT_S3_REGION: {{ .Values.config.s3.region | quote }}
+  CERT_S3_FORCE_PATH_STYLE: {{ .Values.config.s3.forcePathStyle | quote }}

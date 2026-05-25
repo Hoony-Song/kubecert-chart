@@ -1,0 +1,112 @@
+{{- if .Values.questionBank.enabled }}
+{{- if and .Values.questionBank.persistence.create (not .Values.questionBank.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "kubecert.questionBankClaimName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/component: question-bank
+spec:
+  accessModes:
+    {{- toYaml .Values.questionBank.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.questionBank.persistence.storageSize | quote }}
+  {{- if .Values.questionBank.persistence.storageClassName }}
+  storageClassName: {{ .Values.questionBank.persistence.storageClassName | quote }}
+  {{- end }}
+---
+{{- end }}
+{{- if and .Values.questionBank.sync.enabled (eq .Values.questionBank.mode "artifact") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kubecert.fullname" . }}-question-bank-sync
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/component: question-bank
+data:
+  sync-question-bank.py: |
+    import hashlib
+    import os
+    import shutil
+    import tarfile
+    import tempfile
+    import urllib.request
+    from pathlib import Path
+
+    url = os.environ["CERT_QUESTION_BANK_ARTIFACT_URL"]
+    expected_sha = os.environ["CERT_QUESTION_BANK_ARTIFACT_SHA256"]
+    target = Path(os.environ["CERT_QUESTION_BANK_ROOT"])
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        archive = Path(tmpdir) / "question-bank.tar.gz"
+        with urllib.request.urlopen(url, timeout=60) as response:
+            archive.write_bytes(response.read())
+        actual_sha = hashlib.sha256(archive.read_bytes()).hexdigest()
+        if expected_sha and actual_sha != expected_sha:
+            raise SystemExit(f"question-bank sha256 mismatch: {actual_sha}")
+        extracted = Path(tmpdir) / "extract"
+        extracted.mkdir()
+        with tarfile.open(archive, "r:gz") as handle:
+            handle.extractall(extracted)
+        target.mkdir(parents=True, exist_ok=True)
+        for child in target.iterdir():
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+        for child in extracted.iterdir():
+            shutil.move(str(child), target / child.name)
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "kubecert.fullname" . }}-question-bank-sync
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/component: question-bank
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: {{ .Values.questionBank.sync.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.questionBank.sync.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: question-bank
+    spec:
+      restartPolicy: OnFailure
+      {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: sync
+          image: {{ include "kubecert.image" (dict "root" . "image" .Values.images.api) | quote }}
+          imagePullPolicy: {{ .Values.images.api.pullPolicy }}
+          command:
+            - python
+            - /etc/kubecert/question-bank/sync-question-bank.py
+          env:
+            - name: CERT_QUESTION_BANK_ARTIFACT_URL
+              value: {{ .Values.questionBank.artifactUrl | quote }}
+            - name: CERT_QUESTION_BANK_ARTIFACT_SHA256
+              value: {{ .Values.questionBank.artifactSha256 | quote }}
+            - name: CERT_QUESTION_BANK_ROOT
+              value: {{ .Values.questionBank.mountPath | quote }}
+          volumeMounts:
+            - name: sync-script
+              mountPath: /etc/kubecert/question-bank
+              readOnly: true
+            - name: question-bank
+              mountPath: {{ .Values.questionBank.mountPath }}
+      volumes:
+        - name: sync-script
+          configMap:
+            name: {{ include "kubecert.fullname" . }}-question-bank-sync
+        - name: question-bank
+          persistentVolumeClaim:
+            claimName: {{ include "kubecert.questionBankClaimName" . }}
+{{- end }}
+{{- end }}

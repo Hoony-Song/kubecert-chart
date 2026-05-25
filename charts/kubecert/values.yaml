@@ -1,4 +1,8 @@
+nameOverride: ""
+fullnameOverride: ""
+
 global:
+  labels: {}
   imageRegistry: ""
   imagePullSecrets: []
 
@@ -6,80 +10,316 @@ images:
   api:
     repository: ""
     tag: ""
+    digest: ""
     pullPolicy: IfNotPresent
   worker:
     repository: ""
     tag: ""
+    digest: ""
     pullPolicy: IfNotPresent
   terminalGateway:
     repository: ""
     tag: ""
+    digest: ""
     pullPolicy: IfNotPresent
   examWeb:
     repository: ""
     tag: ""
+    digest: ""
     pullPolicy: IfNotPresent
   adminWeb:
     repository: ""
     tag: ""
+    digest: ""
     pullPolicy: IfNotPresent
 
 config:
+  corsOrigins: []
   publicApiUrl: ""
   artifactBaseUrl: ""
+  runtimeNodeInstallerPath: runtime/installer/install.sh
   runtimeNodeInstallerUrl: ""
+  runtimeNodeManifestPath: ""
   runtimeNodeManifestUrl: ""
   frontend:
     examApiBaseUrl: ""
     adminApiBaseUrl: ""
+  backend:
+    bcryptRounds: 12
+    accessTokenExpireMinutes: 720
+    sessionTtlSeconds: 7200
+    sessionGraceSeconds: 300
+    cleanupIntervalSeconds: 60
+    gradeThreads: 5
+    sessionThreads: 2
+    autoDbInit: false
+    autoSeed: false
+    seedRuntimeNodes: false
+    initialAdminPasswordReset: false
+    topologyMode: auto
+    topologyStrict: false
+    nodesConfigPath: /app/config/runtime-nodes.yaml
+    provisionWaitSeconds: 600
+    provisionPollSeconds: 5
+    provisionRecoverRunningAfterSeconds: 900
+    provisionTransportRetries: 3
+    provisionTransportRetrySeconds: 10
+    existingProvisionWaitSeconds: 1800
+    existingProvisionPollSeconds: 10
+    existingProvisionStaleSeconds: 120
+    questionSnapshotMode: file
+    questionSnapshotRefreshSeconds: 60
+    questionSnapshotIncludePreview: false
+  runtime:
+    root: /var/lib/cert
+    healthSshKeyPath: /etc/cert/runtime/id_ed25519
+    authorizedKeyPath: /etc/cert/runtime/id_ed25519.pub
+    vmAdminSshKeyPath: /etc/cert/terminal/runtime_admin_key
+    vmAdminAuthorizedKeyPath: /etc/cert/terminal/runtime_admin_key.pub
+    backendEnableSsh: true
+    sshKeyPath: /etc/cert/runtime/id_ed25519
+  terminal:
+    enabled: true
+    sshKeyPath: /etc/cert/ssh/runtime_admin_key
+    sshPublicKeyPath: /etc/cert/ssh/runtime_admin_key.pub
+    sshUser: ubuntu
+    sshPort: 22
+    runtimeSshKeyPath: /etc/cert/runtime/id_ed25519
+    allowedOrigins: []
+  s3:
+    enabled: false
+    endpointUrl: ""
+    bucket: ""
+    region: us-east-1
+    forcePathStyle: true
 
 secrets:
-  create: false
-  existingSecret: ""
-  runtimeSsh:
+  app:
+    create: false
+    name: ""
     existingSecret: ""
-    privateKeyKey: id_ed25519
-    publicKeyKey: id_ed25519.pub
-  terminalSsh:
-    existingSecret: ""
-    privateKeyKey: runtime_admin_key
-    publicKeyKey: runtime_admin_key.pub
-
-postgresql:
-  mode: bundled
-  external:
-    host: ""
-    port: 5432
-    database: kubecert
+    jwtSecretKey: jwt-secret
+    jwtSecretValue: ""
+  admin:
+    create: false
+    name: ""
     existingSecret: ""
     usernameKey: username
     passwordKey: password
+    username: admin
+    password: ""
+  runtimeSsh:
+    create: false
+    name: ""
+    existingSecret: ""
+    privateKeyKey: id_ed25519
+    publicKeyKey: id_ed25519.pub
+    privateKeyValue: ""
+    publicKeyValue: ""
+  terminalSsh:
+    create: false
+    name: ""
+    existingSecret: ""
+    privateKeyKey: runtime_admin_key
+    publicKeyKey: runtime_admin_key.pub
+    privateKeyValue: ""
+    publicKeyValue: ""
+  s3:
+    create: false
+    name: ""
+    existingSecret: ""
+    accessKeyIdKey: access-key-id
+    secretAccessKeyKey: secret-access-key
+    accessKeyIdValue: ""
+    secretAccessKeyValue: ""
+
+postgresql:
+  mode: bundled
+  auth:
+    create: false
+    name: ""
+    existingSecret: kubecert-postgresql
+    username: kubecert
+    database: kubecert
+    passwordKey: password
+    password: ""
+  bundled:
+    host: ""
+    port: 5432
+  external:
+    host: ""
+    port: 5432
 
 redis:
   mode: bundled
+  database: "0"
+  auth:
+    enabled: true
+    create: false
+    name: ""
+    existingSecret: kubecert-redis
+    passwordKey: password
+    password: ""
+  bundled:
+    host: ""
+    port: 6379
   external:
     host: ""
     port: 6379
-    existingSecret: ""
-    passwordKey: password
 
 keda:
   mode: bundled
+  namespace: ""
+  triggerAuthenticationName: ""
 
 migrations:
   enabled: true
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 6
 
 seed:
   enabled: true
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 6
 
 questionBank:
+  enabled: true
   mode: artifact
+  claimName: ""
+  mountPath: /data/question-bank
   artifactUrl: ""
   artifactSha256: ""
+  persistence:
+    create: true
+    existingClaim: ""
+    storageClassName: ""
+    storageSize: 1Gi
+    accessModes:
+      - ReadWriteMany
+  sync:
+    enabled: true
+    ttlSecondsAfterFinished: 600
+    backoffLimit: 3
+
+api:
+  replicas: 2
+  port: 8000
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+workers:
+  provision:
+    enabled: true
+    mode: provision
+    replicas: 1
+    terminationGracePeriodSeconds: 1800
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+      pollingIntervalSeconds: 5
+      cooldownPeriodSeconds: 1800
+      scaleDownStabilizationSeconds: 1800
+      listName: kubecert:queue:provision
+      targetQueueLength: 1
+      databaseIndex: 0
+      enableTLS: false
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  grade:
+    enabled: true
+    mode: grade
+    replicas: 2
+    terminationGracePeriodSeconds: 600
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+      pollingIntervalSeconds: 5
+      cooldownPeriodSeconds: 300
+      scaleDownStabilizationSeconds: 300
+      listName: kubecert:queue:grade
+      targetQueueLength: 1
+      databaseIndex: 0
+      enableTLS: false
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  cleanup:
+    enabled: true
+    mode: cleanup
+    replicas: 1
+    terminationGracePeriodSeconds: 1200
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+      pollingIntervalSeconds: 5
+      cooldownPeriodSeconds: 900
+      scaleDownStabilizationSeconds: 900
+      listName: kubecert:queue:cleanup
+      targetQueueLength: 1
+      databaseIndex: 0
+      enableTLS: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+terminalGateway:
+  replicas: 2
+  port: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+examWeb:
+  replicas: 2
+  port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+adminWeb:
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
 
 ingress:
   enabled: false
   className: ""
+  annotations: {}
   hosts:
     exam: ""
     admin: ""
@@ -87,3 +327,6 @@ ingress:
   tls:
     enabled: false
     secretName: ""
+
+networkPolicy:
+  enabled: false

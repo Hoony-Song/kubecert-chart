@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubecert.apiName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "kubecert.apiName" . }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "kubecert.apiName" . }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "kubecert.apiName" . }}
+        app.kubernetes.io/component: api
+        {{- include "kubecert.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
+      {{- include "kubecert.waitForDependenciesInitContainers" . | nindent 6 }}
+      containers:
+        - name: api
+          image: {{ include "kubecert.image" (dict "root" . "image" .Values.images.api) | quote }}
+          imagePullPolicy: {{ .Values.images.api.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "kubecert.configMapName" . }}
+          env:
+            {{- include "kubecert.databaseEnv" . | nindent 12 }}
+            {{- include "kubecert.redisEnv" . | nindent 12 }}
+            {{- include "kubecert.jwtEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: runtime-ssh-key
+              mountPath: /etc/cert/runtime
+              readOnly: true
+            - name: terminal-ssh-key
+              mountPath: /etc/cert/terminal
+              readOnly: true
+            {{- if .Values.questionBank.enabled }}
+            - name: question-bank
+              mountPath: {{ .Values.questionBank.mountPath }}
+              readOnly: true
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+      volumes:
+        - name: runtime-ssh-key
+          secret:
+            secretName: {{ include "kubecert.runtimeSshSecretName" . }}
+            defaultMode: 0400
+        - name: terminal-ssh-key
+          secret:
+            secretName: {{ include "kubecert.terminalSshSecretName" . }}
+            defaultMode: 0400
+        {{- if .Values.questionBank.enabled }}
+        - name: question-bank
+          persistentVolumeClaim:
+            claimName: {{ include "kubecert.questionBankClaimName" . }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kubecert.apiName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "kubecert.apiName" . }}
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "kubecert.apiName" . }}
+    app.kubernetes.io/component: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

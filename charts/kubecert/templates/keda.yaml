@@ -1,0 +1,64 @@
+{{- if ne .Values.keda.mode "disabled" }}
+{{- $authName := default (printf "%s-worker-redis" (include "kubecert.fullname" .)) .Values.keda.triggerAuthenticationName -}}
+{{- if .Values.redis.auth.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ $authName }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+spec:
+  secretTargetRef:
+    - parameter: password
+      name: {{ include "kubecert.redisSecretName" . }}
+      key: {{ .Values.redis.auth.passwordKey }}
+---
+{{- end }}
+{{- $root := . -}}
+{{- $workers := list
+  (dict "role" "provision" "config" .Values.workers.provision)
+  (dict "role" "grade" "config" .Values.workers.grade)
+  (dict "role" "cleanup" "config" .Values.workers.cleanup)
+-}}
+{{- range $item := $workers }}
+{{- $role := $item.role -}}
+{{- $worker := $item.config -}}
+{{- if and $worker.enabled $worker.autoscaling.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "kubecert.workerName" $root }}-{{ $role }}
+  labels:
+    {{- include "kubecert.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/role: {{ $role }}
+spec:
+  scaleTargetRef:
+    name: {{ include "kubecert.workerName" $root }}-{{ $role }}
+  pollingInterval: {{ $worker.autoscaling.pollingIntervalSeconds }}
+  cooldownPeriod: {{ $worker.autoscaling.cooldownPeriodSeconds }}
+  minReplicaCount: {{ $worker.autoscaling.minReplicas }}
+  maxReplicaCount: {{ $worker.autoscaling.maxReplicas }}
+  {{- if $worker.autoscaling.scaleDownStabilizationSeconds }}
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: {{ $worker.autoscaling.scaleDownStabilizationSeconds }}
+  {{- end }}
+  triggers:
+    - type: redis
+      metadata:
+        address: {{ include "kubecert.redisAddress" $root | quote }}
+        listName: {{ $worker.autoscaling.listName | quote }}
+        listLength: {{ $worker.autoscaling.targetQueueLength | quote }}
+        databaseIndex: {{ $worker.autoscaling.databaseIndex | quote }}
+        enableTLS: {{ $worker.autoscaling.enableTLS | quote }}
+      {{- if $root.Values.redis.auth.enabled }}
+      authenticationRef:
+        name: {{ $authName }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
