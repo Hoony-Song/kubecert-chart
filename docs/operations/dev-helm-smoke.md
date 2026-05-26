@@ -37,9 +37,9 @@ helm upgrade --install kubecert charts/kubecert \
   --timeout 15m
 ```
 
-On a fresh cluster with bundled KEDA, run the same Helm command a second time
-after the first install succeeds. The first install adds KEDA CRDs; the second
-upgrade renders the Kubecert ScaledObjects.
+With `keda.mode=bundled`, the same Helm install must create the bundled KEDA
+operator, chart-vendored KEDA CRDs, and the Kubecert
+TriggerAuthentication/ScaledObject resources.
 
 ## Smoke Checklist
 
@@ -52,6 +52,18 @@ upgrade renders the Kubecert ScaledObjects.
 - Exam start succeeds.
 - Terminal websocket path reaches the terminal gateway when Runtime Node prerequisites are available.
 - Grading path succeeds when Runtime Node prerequisites are available.
+
+When `ingress.sameOriginApi.enabled=true`, leave frontend API base values empty
+and verify API paths through the frontend hosts:
+
+```bash
+curl http://exam.example.test/exam-types
+curl http://admin.example.test/admin/tokens
+```
+
+If cluster-internal websocket checks pass but external websocket requests reset
+before nginx-ingress logs, fix the external load balancer or front proxy path
+instead of patching application resources by hand.
 
 ## Reinstall
 

@@ -28,7 +28,10 @@ metadata:
     app.kubernetes.io/component: question-bank
 data:
   sync-question-bank.py: |
+    from __future__ import annotations
+
     import hashlib
+    import json
     import os
     import shutil
     import tarfile
@@ -36,21 +39,71 @@ data:
     import urllib.request
     from pathlib import Path
 
-    url = os.environ["CERT_QUESTION_BANK_ARTIFACT_URL"]
-    expected_sha = os.environ["CERT_QUESTION_BANK_ARTIFACT_SHA256"]
-    target = Path(os.environ["CERT_QUESTION_BANK_ROOT"])
+    USER_AGENT = "Mozilla/5.0 kubecert-question-bank-sync"
+
+    def require(value: str, name: str) -> str:
+        if not value:
+            raise SystemExit(f"{name} is required")
+        return value
+
+    def download(url: str, dest: Path) -> None:
+        request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(request, timeout=180) as response:
+            dest.write_bytes(response.read())
+
+    def sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    def safe_extract(archive: Path, target: Path) -> None:
+        target_root = target.resolve()
+        with tarfile.open(archive) as handle:
+            for member in handle.getmembers():
+                destination = (target / member.name).resolve()
+                if not str(destination).startswith(str(target_root)):
+                    raise SystemExit(f"unsafe archive path: {member.name}")
+            handle.extractall(target)
+
+    def artifact_from_manifest() -> tuple[str, str]:
+        explicit = os.getenv("CERT_RUNTIME_NODE_MANIFEST_URL", "").strip()
+        path = os.getenv("CERT_RUNTIME_NODE_MANIFEST_PATH", "").strip()
+        base = os.getenv("CERT_ARTIFACT_BASE_URL", "").strip().rstrip("/")
+        version = os.getenv("CERT_RUNTIME_ARTIFACT_VERSION", "").strip()
+        if explicit:
+            manifest_url = explicit
+        elif path and base:
+            manifest_url = f"{base}/{path.strip('/')}"
+        elif base and version:
+            manifest_url = f"{base}/runtime/manifests/runtime-node-{version}.json"
+        else:
+            return "", ""
+        with tempfile.TemporaryDirectory() as raw_tmp:
+            manifest_path = Path(raw_tmp) / "runtime-node.json"
+            download(manifest_url, manifest_path)
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        question_bank = manifest.get("questionBank") or {}
+        return str(question_bank.get("url") or ""), str(question_bank.get("sha256") or "")
+
+    target = Path(require(os.getenv("CERT_QUESTION_BANK_ROOT", ""), "CERT_QUESTION_BANK_ROOT"))
+    artifact_url = os.getenv("CERT_QUESTION_BANK_ARTIFACT_URL", "").strip()
+    expected_sha = os.getenv("CERT_QUESTION_BANK_ARTIFACT_SHA256", "").strip()
+    if not artifact_url:
+        artifact_url, expected_sha = artifact_from_manifest()
+    artifact_url = require(artifact_url, "question-bank artifact URL")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         archive = Path(tmpdir) / "question-bank.tar.gz"
-        with urllib.request.urlopen(url, timeout=60) as response:
-            archive.write_bytes(response.read())
-        actual_sha = hashlib.sha256(archive.read_bytes()).hexdigest()
-        if expected_sha and actual_sha != expected_sha:
-            raise SystemExit(f"question-bank sha256 mismatch: {actual_sha}")
+        download(artifact_url, archive)
+        if expected_sha:
+            actual_sha = sha256(archive)
+            if actual_sha != expected_sha:
+                raise SystemExit(f"question-bank sha256 mismatch: {actual_sha} != {expected_sha}")
         extracted = Path(tmpdir) / "extract"
         extracted.mkdir()
-        with tarfile.open(archive, "r:gz") as handle:
-            handle.extractall(extracted)
+        safe_extract(archive, extracted)
         target.mkdir(parents=True, exist_ok=True)
         for child in target.iterdir():
             if child.is_dir():
@@ -81,6 +134,7 @@ spec:
     spec:
       restartPolicy: OnFailure
       {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
+      {{- include "kubecert.podScheduling" . | nindent 6 }}
       containers:
         - name: sync
           image: {{ include "kubecert.image" (dict "root" . "image" .Values.images.api) | quote }}
@@ -88,6 +142,9 @@ spec:
           command:
             - python
             - /etc/kubecert/question-bank/sync-question-bank.py
+          envFrom:
+            - configMapRef:
+                name: {{ include "kubecert.configMapName" . }}
           env:
             - name: CERT_QUESTION_BANK_ARTIFACT_URL
               value: {{ .Values.questionBank.artifactUrl | quote }}

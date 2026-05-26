@@ -19,6 +19,7 @@ charts/*/charts/*.tgz
 # Local private values
 /dev-values.yaml
 /prod-values.yaml
+/secrets.yaml
 /*.local-values.yaml
 
 # Local dependencies and build outputs

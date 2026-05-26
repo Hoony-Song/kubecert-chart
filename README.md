@@ -99,6 +99,11 @@ Public URLs and hosts:
 - `ingress.className` when the cluster requires a specific ingress class
 - `ingress.tls.secretName` when `ingress.tls.enabled=true`
 
+Set `ingress.sameOriginApi.enabled=true` when the frontend should call API and
+terminal websocket paths through the same `exam` and `admin` hosts. In that
+mode, leave `config.frontend.examApiBaseUrl` and
+`config.frontend.adminApiBaseUrl` empty so the browser uses the current origin.
+
 Runtime and artifacts:
 
 - `config.runtimeNodeInstallerUrl`
@@ -108,11 +113,15 @@ Runtime and artifacts:
 
 Secrets:
 
-- `secrets.existingSecret` or chart-supported app secret creation inputs
+- `secrets.admin.existingSecret`
 - `secrets.runtimeSsh.existingSecret`
 - `secrets.terminalSsh.existingSecret`
 - `r2.auth.existingSecret` when `r2.enabled=true`
 - external PostgreSQL/Redis credential Secret names when using external mode
+
+The application JWT Secret is generated and owned by the chart. On upgrade, the
+chart reuses the existing Kubernetes Secret value with Helm `lookup`; if the
+Secret does not exist yet, it creates a new random value.
 
 R2, when private object access is enabled:
 

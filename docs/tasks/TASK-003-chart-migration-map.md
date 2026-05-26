@@ -88,7 +88,7 @@ Values must support:
 - immutable image tags or digests
 - bundled/external PostgreSQL
 - bundled/external Redis
-- bundled/external/disabled KEDA
+- bundled/external KEDA. KEDA is required; disabled mode is not supported.
 - existing Secret references
 - migration and seed job toggles
 - question-bank artifact URL and sha256

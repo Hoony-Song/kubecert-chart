@@ -9,6 +9,15 @@
         "imagePullSecrets": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "nodeSelector": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "affinity": { "type": "object" },
+        "tolerations": {
+          "type": "array",
+          "items": { "type": "object" }
         }
       }
     },
@@ -88,7 +97,7 @@
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["bundled", "external", "disabled"]
+          "enum": ["bundled", "external"]
         }
       }
     },
@@ -109,6 +118,12 @@
       "properties": {
         "enabled": { "type": "boolean" },
         "className": { "type": "string" },
+        "sameOriginApi": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" }
+          }
+        },
         "hosts": {
           "type": "object",
           "properties": {

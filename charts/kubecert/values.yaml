@@ -5,6 +5,9 @@ global:
   labels: {}
   imageRegistry: ""
   imagePullSecrets: []
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
 
 images:
   api:
@@ -104,12 +107,6 @@ r2:
     secretAccessKeyValue: ""
 
 secrets:
-  app:
-    create: false
-    name: ""
-    existingSecret: ""
-    jwtSecretKey: jwt-secret
-    jwtSecretValue: ""
   admin:
     create: false
     name: ""
@@ -194,7 +191,7 @@ redis:
 kedaOperator:
   enabled: true
   crds:
-    install: true
+    install: false
 
 keda:
   mode: bundled
@@ -349,6 +346,8 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
+  sameOriginApi:
+    enabled: false
   hosts:
     exam: ""
     admin: ""

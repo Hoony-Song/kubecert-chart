@@ -38,6 +38,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: {{ $worker.terminationGracePeriodSeconds }}
       {{- include "kubecert.imagePullSecrets" $root | nindent 6 }}
+      {{- include "kubecert.podScheduling" $root | nindent 6 }}
       {{- include "kubecert.waitForDependenciesInitContainers" $root | nindent 6 }}
       containers:
         - name: worker

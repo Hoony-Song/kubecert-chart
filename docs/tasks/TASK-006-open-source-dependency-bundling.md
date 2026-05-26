@@ -82,6 +82,11 @@ The chart now defines these Helm dependencies in `charts/kubecert/Chart.yaml`:
 
 Dependency archives under `charts/kubecert/charts/*.tgz` are ignored source build outputs. They are recreated by `helm dependency build` and included in packaged chart release artifacts by the chart release flow.
 
+KEDA CRDs are vendored into `charts/kubecert/crds/` from the bundled KEDA chart
+version. This lets a fresh cluster install KEDA CRDs before Helm validates the
+Kubecert TriggerAuthentication and ScaledObject manifests, so bundled KEDA works
+in a single Helm install.
+
 ## Bundled Mode
 
 - `postgresql.enabled=true`
@@ -124,5 +129,5 @@ External service credentials are passed through existing Secret references. Publ
   - Passed: 1 chart linted, 0 failed. Helm reported only the optional icon recommendation.
 - `helm template kubecert charts/kubecert -f examples/dev/values.yaml`
   - Passed and rendered bundled PostgreSQL, Redis, KEDA, and app workloads.
-- `helm template kubecert charts/kubecert -f examples/external-services/values.yaml`
-  - Passed with bundled dependencies disabled.
+- `helm template kubecert charts/kubecert -f examples/external-services/values.yaml --api-versions keda.sh/v1alpha1/ScaledObject --api-versions keda.sh/v1alpha1/TriggerAuthentication`
+  - Passed with external KEDA CRDs modeled as preinstalled.

@@ -7,8 +7,14 @@ metadata:
     {{- include "kubecert.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
   annotations:
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.org/path-regex: "case_sensitive"
+    nginx.org/proxy-read-timeout: "3600s"
+    nginx.org/proxy-send-timeout: "3600s"
+    nginx.org/proxy-connect-timeout: "10s"
+    nginx.org/websocket-services: {{ include "kubecert.terminalGatewayName" . | quote }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
@@ -27,6 +33,13 @@ spec:
     - host: {{ required "ingress.hosts.api is required when ingress.enabled=true" .Values.ingress.hosts.api | quote }}
       http:
         paths:
+          - path: /exam/[^/]+/terminal
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ include "kubecert.terminalGatewayName" . }}
+                port:
+                  name: http
           - path: /
             pathType: Prefix
             backend:
@@ -38,39 +51,22 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "kubecert.terminalGatewayName" . }}
-  labels:
-    {{- include "kubecert.labels" . | nindent 4 }}
-    app.kubernetes.io/component: terminal-gateway
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
-spec:
-  {{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className | quote }}
-  {{- end }}
-  rules:
-    - host: {{ required "ingress.hosts.api is required when ingress.enabled=true" .Values.ingress.hosts.api | quote }}
-      http:
-        paths:
-          - path: /exam/[^/]+/terminal
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: {{ include "kubecert.terminalGatewayName" . }}
-                port:
-                  name: http
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
   name: {{ include "kubecert.examWebName" . }}
   labels:
     {{- include "kubecert.labels" . | nindent 4 }}
     app.kubernetes.io/component: exam-web
   annotations:
+    {{- if .Values.ingress.sameOriginApi.enabled }}
+    nginx.org/path-regex: "case_sensitive"
+    nginx.org/proxy-read-timeout: "3600s"
+    nginx.org/proxy-send-timeout: "3600s"
+    nginx.org/proxy-connect-timeout: "10s"
+    nginx.org/websocket-services: {{ include "kubecert.terminalGatewayName" . | quote }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    {{- end }}
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -88,6 +84,29 @@ spec:
     - host: {{ required "ingress.hosts.exam is required when ingress.enabled=true" .Values.ingress.hosts.exam | quote }}
       http:
         paths:
+          {{- if .Values.ingress.sameOriginApi.enabled }}
+          - path: /exam/[^/]+/terminal
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ include "kubecert.terminalGatewayName" . }}
+                port:
+                  name: http
+          - path: /exam-types
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kubecert.apiName" . }}
+                port:
+                  name: http
+          - path: /exam/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kubecert.apiName" . }}
+                port:
+                  name: http
+          {{- end }}
           - path: /
             pathType: Prefix
             backend:
@@ -103,6 +122,10 @@ metadata:
   labels:
     {{- include "kubecert.labels" . | nindent 4 }}
     app.kubernetes.io/component: admin-web
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className | quote }}
@@ -117,6 +140,15 @@ spec:
     - host: {{ required "ingress.hosts.admin is required when ingress.enabled=true" .Values.ingress.hosts.admin | quote }}
       http:
         paths:
+          {{- if .Values.ingress.sameOriginApi.enabled }}
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kubecert.apiName" . }}
+                port:
+                  name: http
+          {{- end }}
           - path: /
             pathType: Prefix
             backend:

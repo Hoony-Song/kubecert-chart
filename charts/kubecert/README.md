@@ -31,13 +31,18 @@ Bundled mode uses Helm dependencies:
 
 Run `helm dependency build charts/kubecert` before local install or packaging. Dependency archives are build/release outputs and are not committed to source.
 
-KEDA ScaledObjects are rendered only when the target cluster already reports the
-KEDA CRDs. On a new cluster, the first Helm install can install the bundled KEDA
-operator/CRDs, and the next Helm upgrade creates the ScaledObjects.
+KEDA is required for worker autoscaling. In `keda.mode=bundled`, the bundled
+KEDA dependency installs the operator and this chart vendors the KEDA CRDs under
+`crds/` so TriggerAuthentication and ScaledObject resources can be created in
+the same Helm install. In `keda.mode=external`, the KEDA CRDs must already exist
+or the chart fails fast.
 
 ## Secrets
 
-Use existing Secrets for real deployments, or enable chart-created Secrets only from private local values files.
+Use existing Secrets for admin bootstrap credentials, Runtime Node SSH keys,
+terminal SSH keys, external service credentials, and private R2 credentials.
+The application JWT Secret is chart-owned: Helm reuses the existing Secret value
+with `lookup`, and creates a random value only on first install.
 
 Do not commit real passwords, SSH keys, JWT secrets, token values, or kubeconfig content.
 
@@ -50,3 +55,14 @@ URLs without R2 credentials. If a workload must access private R2 objects, set
 The chart injects `CERT_R2_ACCESS_KEY_ID`, `CERT_R2_SECRET_ACCESS_KEY`,
 `R2_ACCESS_KEY_ID`, and `R2_SECRET_ACCESS_KEY` into backend workloads when R2
 is enabled. Do not put raw R2 keys in public values.
+
+## Frontend API Routing
+
+By default, the frontend runtime config can point to a separate API host through
+`config.frontend.examApiBaseUrl` and `config.frontend.adminApiBaseUrl`.
+
+For environments where the external ingress or TLS layer should keep browser
+traffic on the same host, set `ingress.sameOriginApi.enabled=true` and leave the
+frontend API base values empty. The chart then routes exam API paths and the
+terminal websocket path through the exam host, and admin API paths through the
+admin host.

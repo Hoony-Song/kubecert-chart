@@ -20,6 +20,7 @@ spec:
         {{- include "kubecert.selectorLabels" . | nindent 8 }}
     spec:
       {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
+      {{- include "kubecert.podScheduling" . | nindent 6 }}
       {{- include "kubecert.waitForDependenciesInitContainers" . | nindent 6 }}
       containers:
         - name: api

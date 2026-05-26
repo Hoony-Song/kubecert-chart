@@ -72,7 +72,7 @@ helm upgrade --install kubecert charts/kubecert \
 
 ## Status
 
-Prepared. Actual cluster install is pending private dev values and published dev images/artifacts.
+In progress. A real dev cluster install is running from local private values.
 
 ## Implemented Files
 
@@ -92,17 +92,30 @@ Prepared. Actual cluster install is pending private dev values and published dev
 - Question-bank artifact URL and sha256.
 - Runtime artifact manifest URL and sha256 when Runtime Node join is tested.
 - Existing Secrets or private local values for:
-  - app JWT secret
   - initial admin credentials
   - Runtime SSH key
   - Terminal SSH key
   - external DB/Redis credentials when external mode is used
+- The app JWT Secret is chart-owned and is generated/reused internally.
 
 ## Smoke Result
 
-Actual `helm upgrade --install` was not executed in this task because this public chart repository does not contain real dev image tags, artifact URLs, kubeconfig, or private values. Running with public placeholders would test only invalid placeholder deployment.
+2026-05-26 dev cluster:
 
-The chart is ready for a real dev smoke once private values are supplied.
+- `helm upgrade --install` succeeded with local private `dev-values.yaml`.
+- Release `kubecert` in namespace `kubecert` is deployed at revision 9.
+- Migration, seed, and question-bank sync Jobs completed.
+- Exam/admin runtime config now supports same-origin API routing.
+- Same-origin exam API route `/exam-types` returns active exam metadata.
+- Same-origin admin API route `/admin/*` reaches the API.
+- Cluster-internal nginx-ingress websocket route returns `101 Switching Protocols`.
+- External `210.178.39.84:80` websocket Upgrade requests are reset before
+  reaching nginx-ingress logs. This remains an external frontend/LB path issue,
+  not an application Ingress render issue.
+- After deleting the release, namespace, and KEDA CRDs, a single fresh
+  `helm upgrade --install` created KEDA CRDs, TriggerAuthentication,
+  ScaledObjects, HPAs, DB migration/seed Jobs, question-bank sync Job, and all
+  app workloads. Release `kubecert` is deployed at revision 1.
 
 ## Validation Result
 
@@ -120,3 +133,17 @@ The chart is ready for a real dev smoke once private values are supplied.
   - Passed.
 - `scripts/ci/helm-dev-smoke-preflight.sh --kubeconfig /root/Certifications/dev-config --values examples/dev/values.yaml`
   - Passed as an expected safety rejection: public placeholder values are refused before any dry-run install.
+- `helm lint charts/kubecert -f dev-values.yaml`
+  - Passed.
+- `helm template kubecert charts/kubecert -f dev-values.yaml`
+  - Passed.
+- `helm upgrade --install kubecert charts/kubecert --namespace kubecert --create-namespace --kubeconfig /root/Certifications/dev-config -f dev-values.yaml --timeout 10m --wait`
+  - Passed.
+- Fresh single-install validation:
+  - Deleted the previous release, namespace, and KEDA CRDs.
+  - Applied local private `secrets.yaml` to a new `kubecert` namespace.
+  - Ran `helm upgrade --install kubecert charts/kubecert --namespace kubecert --kubeconfig /root/Certifications/dev-config -f dev-values.yaml --timeout 15m --wait`.
+  - Passed: release revision 1 deployed successfully.
+  - Passed: KEDA CRDs, TriggerAuthentication, ScaledObjects, and HPAs were created during the same install.
+  - Passed: DB migration, seed, and question-bank sync Jobs completed.
+  - Passed: all deployments and bundled PostgreSQL/Redis StatefulSets are Ready.

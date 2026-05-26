@@ -113,7 +113,7 @@ Values must support:
 - Image repositories and immutable tags/digests.
 - Bundled/external PostgreSQL.
 - Bundled/external Redis.
-- Bundled/external/disabled KEDA.
+- Bundled/external KEDA. KEDA is required; disabled mode is not supported.
 - Existing Secret references.
 - Question-bank artifact URL and sha256.
 - Runtime artifact manifest URL and sha256, when needed.

@@ -51,6 +51,21 @@ imagePullSecrets:
 {{- end }}
 {{- end -}}
 
+{{- define "kubecert.podScheduling" -}}
+{{- with .Values.global.nodeSelector }}
+nodeSelector:
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.global.affinity }}
+affinity:
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.global.tolerations }}
+tolerations:
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}
+
 {{- define "kubecert.configMapName" -}}
 {{- printf "%s-config" (include "kubecert.fullname" .) -}}
 {{- end -}}
@@ -76,7 +91,7 @@ imagePullSecrets:
 {{- end -}}
 
 {{- define "kubecert.appSecretName" -}}
-{{- coalesce .Values.secrets.app.existingSecret .Values.secrets.app.name (printf "%s-app" (include "kubecert.fullname" .)) -}}
+{{- printf "%s-app" (include "kubecert.fullname" .) -}}
 {{- end -}}
 
 {{- define "kubecert.adminSecretName" -}}
@@ -180,7 +195,7 @@ imagePullSecrets:
   valueFrom:
     secretKeyRef:
       name: {{ include "kubecert.appSecretName" . }}
-      key: {{ .Values.secrets.app.jwtSecretKey }}
+      key: jwt-secret
 {{- end -}}
 
 {{- define "kubecert.r2Env" -}}
