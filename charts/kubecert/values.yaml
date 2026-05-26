@@ -39,10 +39,11 @@ images:
 config:
   corsOrigins: []
   publicApiUrl: ""
-  artifactBaseUrl: ""
+  allowInsecurePublicApiUrl: false
+  artifactBaseUrl: https://artifacts.sweetlabs.kr
   runtimeNodeInstallerPath: runtime/installer/install.sh
   runtimeNodeInstallerUrl: ""
-  runtimeNodeManifestPath: ""
+  runtimeNodeManifestPath: runtime/manifests/runtime-node-v20260526-cks-apiserver-probe-r1.json
   runtimeNodeManifestUrl: ""
   frontend:
     examApiBaseUrl: ""
@@ -346,6 +347,11 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
+  baseHost: ""
+  subdomains:
+    exam: exam
+    admin: admin
+    api: api
   sameOriginApi:
     enabled: false
   hosts:

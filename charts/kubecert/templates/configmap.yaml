@@ -5,8 +5,9 @@ metadata:
   labels:
     {{- include "kubecert.labels" . | nindent 4 }}
 data:
-  CERT_CORS_ORIGINS: {{ join "," .Values.config.corsOrigins | quote }}
-  CERT_PUBLIC_API_URL: {{ .Values.config.publicApiUrl | quote }}
+  CERT_CORS_ORIGINS: {{ include "kubecert.corsOrigins" . | quote }}
+  CERT_PUBLIC_API_URL: {{ include "kubecert.publicApiUrl" . | quote }}
+  CERT_ALLOW_INSECURE_PUBLIC_API_URL: {{ include "kubecert.allowInsecurePublicApiUrl" . | quote }}
   CERT_ARTIFACT_BASE_URL: {{ .Values.config.artifactBaseUrl | quote }}
   CERT_RUNTIME_NODE_INSTALLER_PATH: {{ .Values.config.runtimeNodeInstallerPath | quote }}
   CERT_RUNTIME_NODE_INSTALLER_URL: {{ .Values.config.runtimeNodeInstallerUrl | quote }}
@@ -28,7 +29,7 @@ data:
   CERT_TERMINAL_SSH_USER: {{ .Values.config.terminal.sshUser | quote }}
   CERT_TERMINAL_SSH_PORT: {{ .Values.config.terminal.sshPort | quote }}
   CERT_RUNTIME_SSH_KEY_PATH: {{ .Values.config.terminal.runtimeSshKeyPath | quote }}
-  CERT_TERMINAL_ALLOWED_ORIGINS: {{ join "," .Values.config.terminal.allowedOrigins | quote }}
+  CERT_TERMINAL_ALLOWED_ORIGINS: {{ include "kubecert.terminalAllowedOrigins" . | quote }}
   CERT_TOPOLOGY_MODE: {{ .Values.config.backend.topologyMode | quote }}
   CERT_TOPOLOGY_STRICT: {{ .Values.config.backend.topologyStrict | quote }}
   CERT_NODES_CONFIG_PATH: {{ .Values.config.backend.nodesConfigPath | quote }}

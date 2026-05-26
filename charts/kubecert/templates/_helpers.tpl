@@ -70,6 +70,70 @@ tolerations:
 {{- printf "%s-config" (include "kubecert.fullname" .) -}}
 {{- end -}}
 
+{{- define "kubecert.externalScheme" -}}
+{{- if .Values.ingress.tls.enabled -}}https{{- else -}}http{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.ingressHost" -}}
+{{- $root := .root -}}
+{{- $name := .name -}}
+{{- $explicit := index $root.Values.ingress.hosts $name | default "" -}}
+{{- if $explicit -}}
+{{- $explicit -}}
+{{- else -}}
+{{- $baseHost := required "ingress.baseHost or ingress.hosts.* is required when ingress.enabled=true" $root.Values.ingress.baseHost -}}
+{{- $subdomain := index $root.Values.ingress.subdomains $name | default $name -}}
+{{- if $subdomain -}}
+{{- printf "%s.%s" ($subdomain | trimSuffix ".") ($baseHost | trimPrefix ".") -}}
+{{- else -}}
+{{- $baseHost -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.externalOrigin" -}}
+{{- printf "%s://%s" (include "kubecert.externalScheme" .root) (include "kubecert.ingressHost" (dict "root" .root "name" .name)) -}}
+{{- end -}}
+
+{{- define "kubecert.publicApiUrl" -}}
+{{- if .Values.config.publicApiUrl -}}
+{{- .Values.config.publicApiUrl | trimSuffix "/" -}}
+{{- else if .Values.ingress.enabled -}}
+{{- include "kubecert.externalOrigin" (dict "root" . "name" "api") -}}
+{{- else -}}
+{{- "" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.defaultWebOrigins" -}}
+{{- if .Values.ingress.enabled -}}
+{{- list (include "kubecert.externalOrigin" (dict "root" . "name" "exam")) (include "kubecert.externalOrigin" (dict "root" . "name" "admin")) | join "," -}}
+{{- else -}}
+{{- "" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.corsOrigins" -}}
+{{- if .Values.config.corsOrigins -}}
+{{- join "," .Values.config.corsOrigins -}}
+{{- else -}}
+{{- include "kubecert.defaultWebOrigins" . -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.terminalAllowedOrigins" -}}
+{{- if .Values.config.terminal.allowedOrigins -}}
+{{- join "," .Values.config.terminal.allowedOrigins -}}
+{{- else -}}
+{{- include "kubecert.defaultWebOrigins" . -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.allowInsecurePublicApiUrl" -}}
+{{- $publicApiUrl := include "kubecert.publicApiUrl" . -}}
+{{- if or .Values.config.allowInsecurePublicApiUrl (hasPrefix "http://" $publicApiUrl) -}}true{{- else -}}false{{- end -}}
+{{- end -}}
+
 {{- define "kubecert.apiName" -}}
 {{- printf "%s-api" (include "kubecert.fullname" .) -}}
 {{- end -}}

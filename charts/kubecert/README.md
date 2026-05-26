@@ -48,8 +48,9 @@ Do not commit real passwords, SSH keys, JWT secrets, token values, or kubeconfig
 
 ## Cloudflare R2
 
-Public artifact downloads can use `config.artifactBaseUrl` and direct artifact
-URLs without R2 credentials. If a workload must access private R2 objects, set
+Public artifact downloads default to `config.artifactBaseUrl` and the runtime
+installer/manifest paths in `values.yaml`; they do not require R2 credentials.
+If a workload must access private R2 objects, set
 `r2.enabled=true` and provide an existing Secret through `r2.auth.existingSecret`.
 
 The chart injects `CERT_R2_ACCESS_KEY_ID`, `CERT_R2_SECRET_ACCESS_KEY`,
@@ -58,8 +59,14 @@ is enabled. Do not put raw R2 keys in public values.
 
 ## Frontend API Routing
 
-By default, the frontend runtime config can point to a separate API host through
-`config.frontend.examApiBaseUrl` and `config.frontend.adminApiBaseUrl`.
+When ingress is enabled, the chart derives `exam`, `admin`, and `api` hosts
+from `ingress.subdomains.* + ingress.baseHost` unless `ingress.hosts.*` provides
+an explicit override. The public API URL, CORS origins, and terminal allowed
+origins are derived from those hosts and `ingress.tls.enabled`.
+
+The frontend runtime config can still point to a separate API host through
+`config.frontend.examApiBaseUrl` and `config.frontend.adminApiBaseUrl` when an
+environment needs that override.
 
 For environments where the external ingress or TLS layer should keep browser
 traffic on the same host, set `ingress.sameOriginApi.enabled=true` and leave the

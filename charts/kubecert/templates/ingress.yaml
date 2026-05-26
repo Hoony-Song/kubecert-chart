@@ -1,4 +1,7 @@
 {{- if .Values.ingress.enabled }}
+{{- $apiHost := include "kubecert.ingressHost" (dict "root" . "name" "api") -}}
+{{- $examHost := include "kubecert.ingressHost" (dict "root" . "name" "exam") -}}
+{{- $adminHost := include "kubecert.ingressHost" (dict "root" . "name" "admin") -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -27,10 +30,10 @@ spec:
   tls:
     - secretName: {{ .Values.ingress.tls.secretName | quote }}
       hosts:
-        - {{ .Values.ingress.hosts.api | quote }}
+        - {{ $apiHost | quote }}
   {{- end }}
   rules:
-    - host: {{ required "ingress.hosts.api is required when ingress.enabled=true" .Values.ingress.hosts.api | quote }}
+    - host: {{ $apiHost | quote }}
       http:
         paths:
           - path: /exam/[^/]+/terminal
@@ -78,10 +81,10 @@ spec:
   tls:
     - secretName: {{ .Values.ingress.tls.secretName | quote }}
       hosts:
-        - {{ .Values.ingress.hosts.exam | quote }}
+        - {{ $examHost | quote }}
   {{- end }}
   rules:
-    - host: {{ required "ingress.hosts.exam is required when ingress.enabled=true" .Values.ingress.hosts.exam | quote }}
+    - host: {{ $examHost | quote }}
       http:
         paths:
           {{- if .Values.ingress.sameOriginApi.enabled }}
@@ -134,10 +137,10 @@ spec:
   tls:
     - secretName: {{ .Values.ingress.tls.secretName | quote }}
       hosts:
-        - {{ .Values.ingress.hosts.admin | quote }}
+        - {{ $adminHost | quote }}
   {{- end }}
   rules:
-    - host: {{ required "ingress.hosts.admin is required when ingress.enabled=true" .Values.ingress.hosts.admin | quote }}
+    - host: {{ $adminHost | quote }}
       http:
         paths:
           {{- if .Values.ingress.sameOriginApi.enabled }}

@@ -39,8 +39,11 @@
           "items": { "type": "string" }
         },
         "publicApiUrl": { "type": "string" },
+        "allowInsecurePublicApiUrl": { "type": "boolean" },
         "artifactBaseUrl": { "type": "string" },
+        "runtimeNodeInstallerPath": { "type": "string" },
         "runtimeNodeInstallerUrl": { "type": "string" },
+        "runtimeNodeManifestPath": { "type": "string" },
         "runtimeNodeManifestUrl": { "type": "string" },
         "frontend": {
           "type": "object",
@@ -118,6 +121,15 @@
       "properties": {
         "enabled": { "type": "boolean" },
         "className": { "type": "string" },
+        "baseHost": { "type": "string" },
+        "subdomains": {
+          "type": "object",
+          "properties": {
+            "exam": { "type": "string" },
+            "admin": { "type": "string" },
+            "api": { "type": "string" }
+          }
+        },
         "sameOriginApi": {
           "type": "object",
           "properties": {

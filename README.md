@@ -89,15 +89,18 @@ and must not reference `dev-*`, `latest`, `current`, or `main`.
 
 Public URLs and hosts:
 
-- `config.publicApiUrl`
-- `config.artifactBaseUrl`
-- `config.frontend.examApiBaseUrl`
-- `config.frontend.adminApiBaseUrl`
-- `ingress.hosts.exam` when `ingress.enabled=true`
-- `ingress.hosts.admin` when `ingress.enabled=true`
-- `ingress.hosts.api` when `ingress.enabled=true`
+- `ingress.baseHost` when `ingress.enabled=true` and per-host overrides are not used
+- `ingress.hosts.exam` only when the exam host cannot be derived from `ingress.baseHost`
+- `ingress.hosts.admin` only when the admin host cannot be derived from `ingress.baseHost`
+- `ingress.hosts.api` only when the API host cannot be derived from `ingress.baseHost`
 - `ingress.className` when the cluster requires a specific ingress class
 - `ingress.tls.secretName` when `ingress.tls.enabled=true`
+
+The chart derives `exam`, `admin`, and `api` hosts from
+`ingress.subdomains.* + ingress.baseHost`, and derives the public API URL and
+default browser origins from those hosts. When `ingress.tls.enabled=false`, the
+derived public API URL uses `http://` and the chart enables HTTP join callbacks
+for development clusters. When TLS is enabled, it uses `https://`.
 
 Set `ingress.sameOriginApi.enabled=true` when the frontend should call API and
 terminal websocket paths through the same `exam` and `admin` hosts. In that
@@ -106,10 +109,13 @@ mode, leave `config.frontend.examApiBaseUrl` and
 
 Runtime and artifacts:
 
-- `config.runtimeNodeInstallerUrl`
-- `config.runtimeNodeManifestUrl`
 - `questionBank.artifactUrl`
 - `questionBank.artifactSha256`
+
+Runtime Node installer and manifest URLs default to the public SweetLabs
+artifact repository through `config.artifactBaseUrl`,
+`config.runtimeNodeInstallerPath`, and `config.runtimeNodeManifestPath`. Override
+those only when releasing or testing a different artifact channel.
 
 Secrets:
 
