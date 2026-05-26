@@ -71,8 +71,9 @@ ingress:
     exam: www
     admin: admin
     api: api
+    terminal: terminal
   sameOriginApi:
-    enabled: true
+    enabled: false
   tls:
     enabled: true
     secretName: kubecert-tls

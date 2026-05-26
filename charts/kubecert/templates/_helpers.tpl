@@ -74,6 +74,10 @@ tolerations:
 {{- if .Values.ingress.tls.enabled -}}https{{- else -}}http{{- end -}}
 {{- end -}}
 
+{{- define "kubecert.externalWsScheme" -}}
+{{- if .Values.ingress.tls.enabled -}}wss{{- else -}}ws{{- end -}}
+{{- end -}}
+
 {{- define "kubecert.ingressHost" -}}
 {{- $root := .root -}}
 {{- $name := .name -}}
@@ -95,11 +99,25 @@ tolerations:
 {{- printf "%s://%s" (include "kubecert.externalScheme" .root) (include "kubecert.ingressHost" (dict "root" .root "name" .name)) -}}
 {{- end -}}
 
+{{- define "kubecert.externalWsOrigin" -}}
+{{- printf "%s://%s" (include "kubecert.externalWsScheme" .root) (include "kubecert.ingressHost" (dict "root" .root "name" .name)) -}}
+{{- end -}}
+
 {{- define "kubecert.publicApiUrl" -}}
 {{- if .Values.config.publicApiUrl -}}
 {{- .Values.config.publicApiUrl | trimSuffix "/" -}}
 {{- else if .Values.ingress.enabled -}}
 {{- include "kubecert.externalOrigin" (dict "root" . "name" "api") -}}
+{{- else -}}
+{{- "" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.terminalWsBaseUrl" -}}
+{{- if .Values.config.frontend.terminalWsBaseUrl -}}
+{{- .Values.config.frontend.terminalWsBaseUrl | trimSuffix "/" -}}
+{{- else if .Values.ingress.enabled -}}
+{{- include "kubecert.externalWsOrigin" (dict "root" . "name" "terminal") -}}
 {{- else -}}
 {{- "" -}}
 {{- end -}}
@@ -267,22 +285,22 @@ tolerations:
 - name: CERT_R2_ACCESS_KEY_ID
   valueFrom:
     secretKeyRef:
-      name: {{ include "kubecert.r2SecretName" . }}
+      name: {{ required "r2.auth.existingSecret is required when r2.enabled=true" (include "kubecert.r2SecretName" .) }}
       key: {{ .Values.r2.auth.accessKeyIdKey }}
 - name: CERT_R2_SECRET_ACCESS_KEY
   valueFrom:
     secretKeyRef:
-      name: {{ include "kubecert.r2SecretName" . }}
+      name: {{ required "r2.auth.existingSecret is required when r2.enabled=true" (include "kubecert.r2SecretName" .) }}
       key: {{ .Values.r2.auth.secretAccessKeyKey }}
 - name: R2_ACCESS_KEY_ID
   valueFrom:
     secretKeyRef:
-      name: {{ include "kubecert.r2SecretName" . }}
+      name: {{ required "r2.auth.existingSecret is required when r2.enabled=true" (include "kubecert.r2SecretName" .) }}
       key: {{ .Values.r2.auth.accessKeyIdKey }}
 - name: R2_SECRET_ACCESS_KEY
   valueFrom:
     secretKeyRef:
-      name: {{ include "kubecert.r2SecretName" . }}
+      name: {{ required "r2.auth.existingSecret is required when r2.enabled=true" (include "kubecert.r2SecretName" .) }}
       key: {{ .Values.r2.auth.secretAccessKeyKey }}
 {{- end }}
 {{- end -}}

@@ -53,5 +53,10 @@ ingress:
   enabled: true
   className: nginx
   baseHost: dev.example.com
+  subdomains:
+    exam: exam
+    admin: admin
+    api: api
+    terminal: terminal
   sameOriginApi:
     enabled: true

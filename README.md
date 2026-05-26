@@ -109,14 +109,16 @@ Public URLs and hosts:
 - `ingress.hosts.exam` only when the exam host cannot be derived from `ingress.baseHost`
 - `ingress.hosts.admin` only when the admin host cannot be derived from `ingress.baseHost`
 - `ingress.hosts.api` only when the API host cannot be derived from `ingress.baseHost`
+- `ingress.hosts.terminal` only when the terminal host cannot be derived from `ingress.baseHost`
 - `ingress.className` when the cluster requires a specific ingress class
 - `ingress.tls.secretName` when `ingress.tls.enabled=true`
 
-The chart derives `exam`, `admin`, and `api` hosts from
+The chart derives `exam`, `admin`, `api`, and `terminal` hosts from
 `ingress.subdomains.* + ingress.baseHost`, and derives the public API URL and
-default browser origins from those hosts. When `ingress.tls.enabled=false`, the
-derived public API URL uses `http://` and the chart enables HTTP join callbacks
-for development clusters. When TLS is enabled, it uses `https://`.
+terminal websocket URL from those hosts. When `ingress.tls.enabled=false`, the
+derived public API URL uses `http://`, the terminal websocket uses `ws://`, and
+the chart enables HTTP join callbacks for development clusters. When TLS is
+enabled, they use `https://` and `wss://`.
 
 Set `ingress.sameOriginApi.enabled=true` when the frontend should call API and
 terminal websocket paths through the same `exam` and `admin` hosts. In that
@@ -128,10 +130,10 @@ Runtime and artifacts:
 - `questionBank.artifactUrl`
 - `questionBank.artifactSha256`
 
-Runtime Node installer and manifest URLs default to the public SweetLabs
-artifact repository through `config.artifactBaseUrl`,
-`config.runtimeNodeInstallerPath`, and `config.runtimeNodeManifestPath`. Override
-those only when releasing or testing a different artifact channel.
+Runtime Node installer and manifest defaults live in the private application
+source, not in public default values. Override `config.runtimeNodeInstallerUrl`
+or `config.runtimeNodeManifestUrl` only when releasing or testing a different
+artifact channel.
 
 Secrets:
 
@@ -144,6 +146,10 @@ Secrets:
 The application JWT Secret is generated and owned by the chart. On upgrade, the
 chart reuses the existing Kubernetes Secret value with Helm `lookup`; if the
 Secret does not exist yet, it creates a new random value.
+
+When Runtime/Terminal SSH existing Secrets are not supplied, the chart runs a
+pre-install/pre-upgrade key generation Job. The Job reuses existing Secrets and
+only creates missing OpenSSH ed25519 keypairs.
 
 R2, when private object access is enabled:
 

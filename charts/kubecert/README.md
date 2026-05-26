@@ -49,13 +49,17 @@ Use existing Secrets for admin bootstrap credentials, Runtime Node SSH keys,
 terminal SSH keys, external service credentials, and private R2 credentials.
 The application JWT Secret is chart-owned: Helm reuses the existing Secret value
 with `lookup`, and creates a random value only on first install.
+When Runtime/Terminal SSH existing Secrets are not supplied, the chart runs a
+pre-install/pre-upgrade Job that creates missing OpenSSH ed25519 keypairs and
+reuses existing Secrets.
 
 Do not commit real passwords, SSH keys, JWT secrets, token values, or kubeconfig content.
 
 ## Cloudflare R2
 
-Public artifact downloads default to `config.artifactBaseUrl` and the runtime
-installer/manifest paths in `values.yaml`; they do not require R2 credentials.
+Public artifact downloads use application defaults or explicit artifact URL
+overrides; default values do not expose the public artifact provider URL. Public
+downloads do not require R2 credentials.
 If a workload must access private R2 objects, set
 `r2.enabled=true` and provide an existing Secret through `r2.auth.existingSecret`.
 
@@ -65,10 +69,10 @@ is enabled. Do not put raw R2 keys in public values.
 
 ## Frontend API Routing
 
-When ingress is enabled, the chart derives `exam`, `admin`, and `api` hosts
+When ingress is enabled, the chart derives `exam`, `admin`, `api`, and `terminal` hosts
 from `ingress.subdomains.* + ingress.baseHost` unless `ingress.hosts.*` provides
-an explicit override. The public API URL, CORS origins, and terminal allowed
-origins are derived from those hosts and `ingress.tls.enabled`.
+an explicit override. The public API URL, terminal websocket URL, CORS origins,
+and terminal allowed origins are derived from those hosts and `ingress.tls.enabled`.
 
 The frontend runtime config can still point to a separate API host through
 `config.frontend.examApiBaseUrl` and `config.frontend.adminApiBaseUrl` when an

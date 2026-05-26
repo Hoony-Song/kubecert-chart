@@ -40,16 +40,14 @@
         },
         "publicApiUrl": { "type": "string" },
         "allowInsecurePublicApiUrl": { "type": "boolean" },
-        "artifactBaseUrl": { "type": "string" },
-        "runtimeNodeInstallerPath": { "type": "string" },
         "runtimeNodeInstallerUrl": { "type": "string" },
-        "runtimeNodeManifestPath": { "type": "string" },
         "runtimeNodeManifestUrl": { "type": "string" },
         "frontend": {
           "type": "object",
           "properties": {
             "examApiBaseUrl": { "type": "string" },
-            "adminApiBaseUrl": { "type": "string" }
+            "adminApiBaseUrl": { "type": "string" },
+            "terminalWsBaseUrl": { "type": "string" }
           }
         }
       }
@@ -66,13 +64,10 @@
         "auth": {
           "type": "object",
           "properties": {
-            "create": { "type": "boolean" },
             "name": { "type": "string" },
             "existingSecret": { "type": "string" },
             "accessKeyIdKey": { "type": "string" },
-            "secretAccessKeyKey": { "type": "string" },
-            "accessKeyIdValue": { "type": "string" },
-            "secretAccessKeyValue": { "type": "string" }
+            "secretAccessKeyKey": { "type": "string" }
           }
         }
       }
@@ -127,7 +122,8 @@
           "properties": {
             "exam": { "type": "string" },
             "admin": { "type": "string" },
-            "api": { "type": "string" }
+            "api": { "type": "string" },
+            "terminal": { "type": "string" }
           }
         },
         "sameOriginApi": {
@@ -141,7 +137,8 @@
           "properties": {
             "exam": { "type": "string" },
             "admin": { "type": "string" },
-            "api": { "type": "string" }
+            "api": { "type": "string" },
+            "terminal": { "type": "string" }
           }
         },
         "tls": {

@@ -19,3 +19,4 @@ tasks in `kubecert`.
 | TASK-008 | Dev and Prod Values Overlays | Provide safe placeholder overlays and private values guidance. |
 | TASK-009 | Dev Cluster Helm Smoke | Install to disposable dev cluster using Helm only. |
 | TASK-010 | Chart Release Publication | Package and publish the public chart repository. |
+| TASK-011 | Values Surface, SSH Key Generation, and Terminal Host Contract | Hide internal defaults, generate SSH keys, and split terminal host. |

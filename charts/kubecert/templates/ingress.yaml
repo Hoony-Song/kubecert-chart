@@ -2,6 +2,7 @@
 {{- $apiHost := include "kubecert.ingressHost" (dict "root" . "name" "api") -}}
 {{- $examHost := include "kubecert.ingressHost" (dict "root" . "name" "exam") -}}
 {{- $adminHost := include "kubecert.ingressHost" (dict "root" . "name" "admin") -}}
+{{- $terminalHost := include "kubecert.ingressHost" (dict "root" . "name" "terminal") -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -48,6 +49,48 @@ spec:
             backend:
               service:
                 name: {{ include "kubecert.apiName" . }}
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kubecert.terminalGatewayName" . }}
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/component: terminal-gateway
+  annotations:
+    nginx.org/path-regex: "case_sensitive"
+    nginx.org/proxy-read-timeout: "3600s"
+    nginx.org/proxy-send-timeout: "3600s"
+    nginx.org/proxy-connect-timeout: "10s"
+    nginx.org/websocket-services: {{ include "kubecert.terminalGatewayName" . | quote }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  {{- end }}
+  {{- if and .Values.ingress.tls.enabled .Values.ingress.tls.secretName }}
+  tls:
+    - secretName: {{ .Values.ingress.tls.secretName | quote }}
+      hosts:
+        - {{ $terminalHost | quote }}
+  {{- end }}
+  rules:
+    - host: {{ $terminalHost | quote }}
+      http:
+        paths:
+          - path: /exam/[^/]+/terminal
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ include "kubecert.terminalGatewayName" . }}
                 port:
                   name: http
 ---

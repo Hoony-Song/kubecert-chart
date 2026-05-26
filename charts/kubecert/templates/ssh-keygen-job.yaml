@@ -1,0 +1,170 @@
+{{- $generateRuntime := and .Values.secrets.runtimeSsh.autoGenerate (not .Values.secrets.runtimeSsh.existingSecret) -}}
+{{- $generateTerminal := and .Values.secrets.terminalSsh.autoGenerate (not .Values.secrets.terminalSsh.existingSecret) -}}
+{{- if or $generateRuntime $generateTerminal }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "kubecert.fullname" . }}-ssh-keygen
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-60"
+    "helm.sh/hook-delete-policy": before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kubecert.fullname" . }}-ssh-keygen
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-60"
+    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "kubecert.fullname" . }}-ssh-keygen
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-60"
+    "helm.sh/hook-delete-policy": before-hook-creation
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kubecert.fullname" . }}-ssh-keygen
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "kubecert.fullname" . }}-ssh-keygen
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "kubecert.fullname" . }}-ssh-keygen
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ssh-keygen
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-50"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: ssh-keygen
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: {{ include "kubecert.fullname" . }}-ssh-keygen
+      {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: ssh-keygen
+          image: {{ include "kubecert.image" (dict "root" . "image" .Values.images.api) | quote }}
+          imagePullPolicy: {{ .Values.images.api.pullPolicy }}
+          command:
+            - python
+            - -c
+            - |
+              import base64
+              import json
+              import os
+              import ssl
+              import subprocess
+              import tempfile
+              import urllib.error
+              import urllib.request
+
+              namespace = open("/var/run/secrets/kubernetes.io/serviceaccount/namespace", encoding="utf-8").read().strip()
+              token = open("/var/run/secrets/kubernetes.io/serviceaccount/token", encoding="utf-8").read().strip()
+              ca_file = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+              api = f"https://{os.environ['KUBERNETES_SERVICE_HOST']}:{os.environ['KUBERNETES_SERVICE_PORT_HTTPS']}"
+              context = ssl.create_default_context(cafile=ca_file)
+
+              def request(method, path, body=None):
+                  data = json.dumps(body).encode("utf-8") if body is not None else None
+                  req = urllib.request.Request(
+                      f"{api}{path}",
+                      data=data,
+                      method=method,
+                      headers={
+                          "Authorization": f"Bearer {token}",
+                          "Accept": "application/json",
+                          "Content-Type": "application/json",
+                      },
+                  )
+                  return urllib.request.urlopen(req, context=context, timeout=10)
+
+              def secret_exists(name):
+                  try:
+                      request("GET", f"/api/v1/namespaces/{namespace}/secrets/{name}").read()
+                      return True
+                  except urllib.error.HTTPError as exc:
+                      if exc.code == 404:
+                          return False
+                      raise
+
+              def b64(value):
+                  return base64.b64encode(value).decode("ascii")
+
+              def create_secret(name, private_key_key, public_key_key):
+                  if secret_exists(name):
+                      print(f"Secret {name} already exists; reusing")
+                      return
+                  with tempfile.TemporaryDirectory() as workdir:
+                      key_path = os.path.join(workdir, "id_ed25519")
+                      subprocess.run(
+                          ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", name, "-f", key_path],
+                          check=True,
+                      )
+                      with open(key_path, "rb") as handle:
+                          private_key = handle.read()
+                      with open(f"{key_path}.pub", "rb") as handle:
+                          public_key = handle.read()
+                  body = {
+                      "apiVersion": "v1",
+                      "kind": "Secret",
+                      "metadata": {
+                          "name": name,
+                          "labels": {
+                              "app.kubernetes.io/managed-by": "Helm",
+                              "app.kubernetes.io/part-of": "kubecert",
+                          },
+                      },
+                      "type": "Opaque",
+                      "data": {
+                          private_key_key: b64(private_key),
+                          public_key_key: b64(public_key),
+                      },
+                  }
+                  request("POST", f"/api/v1/namespaces/{namespace}/secrets", body).read()
+                  print(f"Created Secret {name}")
+
+              secrets = [
+              {{- if $generateRuntime }}
+                  (
+                      {{ include "kubecert.runtimeSshSecretName" . | quote }},
+                      {{ .Values.secrets.runtimeSsh.privateKeyKey | quote }},
+                      {{ .Values.secrets.runtimeSsh.publicKeyKey | quote }},
+                  ),
+              {{- end }}
+              {{- if $generateTerminal }}
+                  (
+                      {{ include "kubecert.terminalSshSecretName" . | quote }},
+                      {{ .Values.secrets.terminalSsh.privateKeyKey | quote }},
+                      {{ .Values.secrets.terminalSsh.publicKeyKey | quote }},
+                  ),
+              {{- end }}
+              ]
+              for item in secrets:
+                  create_secret(*item)
+{{- end }}

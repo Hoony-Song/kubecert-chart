@@ -40,14 +40,10 @@ config:
   corsOrigins: []
   publicApiUrl: ""
   allowInsecurePublicApiUrl: false
-  artifactBaseUrl: https://artifacts.sweetlabs.kr
-  runtimeNodeInstallerPath: runtime/installer/install.sh
-  runtimeNodeInstallerUrl: ""
-  runtimeNodeManifestPath: runtime/manifests/runtime-node-v20260526-cks-apiserver-probe-r1.json
-  runtimeNodeManifestUrl: ""
   frontend:
     examApiBaseUrl: ""
     adminApiBaseUrl: ""
+    terminalWsBaseUrl: ""
   backend:
     bcryptRounds: 12
     accessTokenExpireMinutes: 720
@@ -75,20 +71,11 @@ config:
     questionSnapshotRefreshSeconds: 60
     questionSnapshotIncludePreview: false
   runtime:
-    root: /var/lib/cert
-    healthSshKeyPath: /etc/cert/runtime/id_ed25519
-    authorizedKeyPath: /etc/cert/runtime/id_ed25519.pub
-    vmAdminSshKeyPath: /etc/cert/terminal/runtime_admin_key
-    vmAdminAuthorizedKeyPath: /etc/cert/terminal/runtime_admin_key.pub
     backendEnableSsh: true
-    sshKeyPath: /etc/cert/runtime/id_ed25519
   terminal:
     enabled: true
-    sshKeyPath: /etc/cert/ssh/runtime_admin_key
-    sshPublicKeyPath: /etc/cert/ssh/runtime_admin_key.pub
     sshUser: ubuntu
     sshPort: 22
-    runtimeSshKeyPath: /etc/cert/runtime/id_ed25519
     allowedOrigins: []
 
 r2:
@@ -99,13 +86,10 @@ r2:
   region: auto
   forcePathStyle: true
   auth:
-    create: false
     name: ""
     existingSecret: ""
     accessKeyIdKey: access-key-id
     secretAccessKeyKey: secret-access-key
-    accessKeyIdValue: ""
-    secretAccessKeyValue: ""
 
 secrets:
   admin:
@@ -117,21 +101,17 @@ secrets:
     username: admin
     password: ""
   runtimeSsh:
-    create: false
+    autoGenerate: true
     name: ""
     existingSecret: ""
     privateKeyKey: id_ed25519
     publicKeyKey: id_ed25519.pub
-    privateKeyValue: ""
-    publicKeyValue: ""
   terminalSsh:
-    create: false
+    autoGenerate: true
     name: ""
     existingSecret: ""
     privateKeyKey: runtime_admin_key
     publicKeyKey: runtime_admin_key.pub
-    privateKeyValue: ""
-    publicKeyValue: ""
 
 postgresql:
   enabled: true
@@ -352,12 +332,14 @@ ingress:
     exam: exam
     admin: admin
     api: api
+    terminal: terminal
   sameOriginApi:
     enabled: false
   hosts:
     exam: ""
     admin: ""
     api: ""
+    terminal: ""
   tls:
     enabled: false
     secretName: ""
