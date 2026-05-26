@@ -47,6 +47,7 @@
           "properties": {
             "examApiBaseUrl": { "type": "string" },
             "adminApiBaseUrl": { "type": "string" },
+            "terminalHost": { "type": "string" },
             "terminalWsBaseUrl": { "type": "string" }
           }
         }

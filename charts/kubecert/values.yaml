@@ -43,6 +43,7 @@ config:
   frontend:
     examApiBaseUrl: ""
     adminApiBaseUrl: ""
+    terminalHost: ""
     terminalWsBaseUrl: ""
   backend:
     bcryptRounds: 12

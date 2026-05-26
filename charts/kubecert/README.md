@@ -71,8 +71,18 @@ is enabled. Do not put raw R2 keys in public values.
 
 When ingress is enabled, the chart derives `exam`, `admin`, `api`, and `terminal` hosts
 from `ingress.subdomains.* + ingress.baseHost` unless `ingress.hosts.*` provides
-an explicit override. The public API URL, terminal websocket URL, CORS origins,
-and terminal allowed origins are derived from those hosts and `ingress.tls.enabled`.
+an explicit override. The public API URL, CORS origins, and terminal allowed
+origins are derived from those hosts and `ingress.tls.enabled`.
+
+By default, the exam frontend uses the current exam page origin for terminal
+websockets. A browser that upgrades `http://exam...` to `https://exam...` will
+therefore use `wss://exam.../exam/<token>/terminal`, avoiding a separate
+terminal-host TLS trust requirement. Set `config.frontend.terminalHost` or
+`config.frontend.terminalWsBaseUrl` only when the terminal endpoint has its own
+valid external host and TLS/DNS behavior.
+Default CORS and terminal allowed-origin lists include both `http://` and
+`https://` forms for the derived exam/admin hosts to support external TLS or
+browser HSTS upgrades.
 
 The frontend runtime config can still point to a separate API host through
 `config.frontend.examApiBaseUrl` and `config.frontend.adminApiBaseUrl` when an

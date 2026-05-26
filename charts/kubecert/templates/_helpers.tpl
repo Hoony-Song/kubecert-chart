@@ -116,8 +116,14 @@ tolerations:
 {{- define "kubecert.terminalWsBaseUrl" -}}
 {{- if .Values.config.frontend.terminalWsBaseUrl -}}
 {{- .Values.config.frontend.terminalWsBaseUrl | trimSuffix "/" -}}
-{{- else if .Values.ingress.enabled -}}
-{{- include "kubecert.externalWsOrigin" (dict "root" . "name" "terminal") -}}
+{{- else -}}
+{{- "" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.terminalHost" -}}
+{{- if .Values.config.frontend.terminalHost -}}
+{{- .Values.config.frontend.terminalHost | trimSuffix "/" | trimPrefix "https://" | trimPrefix "http://" | trimPrefix "wss://" | trimPrefix "ws://" -}}
 {{- else -}}
 {{- "" -}}
 {{- end -}}
@@ -145,7 +151,9 @@ tolerations:
 
 {{- define "kubecert.defaultWebOrigins" -}}
 {{- if .Values.ingress.enabled -}}
-{{- list (include "kubecert.externalOrigin" (dict "root" . "name" "exam")) (include "kubecert.externalOrigin" (dict "root" . "name" "admin")) | join "," -}}
+{{- $examHost := include "kubecert.ingressHost" (dict "root" . "name" "exam") -}}
+{{- $adminHost := include "kubecert.ingressHost" (dict "root" . "name" "admin") -}}
+{{- list (printf "http://%s" $examHost) (printf "https://%s" $examHost) (printf "http://%s" $adminHost) (printf "https://%s" $adminHost) | join "," -}}
 {{- else -}}
 {{- "" -}}
 {{- end -}}

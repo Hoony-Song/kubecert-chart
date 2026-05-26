@@ -109,21 +109,33 @@ Public URLs and hosts:
 - `ingress.hosts.exam` only when the exam host cannot be derived from `ingress.baseHost`
 - `ingress.hosts.admin` only when the admin host cannot be derived from `ingress.baseHost`
 - `ingress.hosts.api` only when the API host cannot be derived from `ingress.baseHost`
-- `ingress.hosts.terminal` only when the terminal host cannot be derived from `ingress.baseHost`
+- `ingress.hosts.terminal` only when a separate terminal ingress host is required
 - `ingress.className` when the cluster requires a specific ingress class
 - `ingress.tls.secretName` when `ingress.tls.enabled=true`
 
 The chart derives `exam`, `admin`, `api`, and `terminal` hosts from
-`ingress.subdomains.* + ingress.baseHost`, and derives the public API URL and
-terminal websocket URL from those hosts. When `ingress.tls.enabled=false`, the
-derived public API URL uses `http://`, the terminal websocket uses `ws://`, and
-the chart enables HTTP join callbacks for development clusters. When TLS is
-enabled, they use `https://` and `wss://`.
+`ingress.subdomains.* + ingress.baseHost`, and derives the public API URL from
+those hosts. The exam frontend uses same-origin terminal websockets by default,
+so the browser connects to `/exam/<token>/terminal` on the current `exam` host
+with `ws://` or `wss://` based on the actual loaded page protocol. This keeps
+HTTP, browser HTTPS upgrades, and valid TLS deployments aligned without
+hardcoding a websocket scheme or forcing a separate terminal host. When
+`ingress.tls.enabled=false`, the derived public API URL uses `http://` and the
+chart enables HTTP join callbacks for development clusters. When TLS is enabled,
+the public API URL uses `https://`.
+
+Use `config.frontend.terminalHost` or `config.frontend.terminalWsBaseUrl` only
+when the terminal endpoint intentionally has its own external host with working
+DNS and TLS behavior.
 
 Set `ingress.sameOriginApi.enabled=true` when the frontend should call API and
 terminal websocket paths through the same `exam` and `admin` hosts. In that
 mode, leave `config.frontend.examApiBaseUrl` and
 `config.frontend.adminApiBaseUrl` empty so the browser uses the current origin.
+Default CORS and terminal allowed-origin lists include both `http://` and
+`https://` forms for the derived exam/admin hosts, because browsers can upgrade
+an HTTP entrypoint through HSTS or an external TLS layer even when chart TLS is
+disabled.
 
 Runtime and artifacts:
 
