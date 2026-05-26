@@ -194,6 +194,7 @@ questionBank:
   mode: artifact
   claimName: ""
   mountPath: /data/question-bank
+  version: ""
   artifactUrl: ""
   artifactSha256: ""
   persistence:

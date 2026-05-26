@@ -38,6 +38,7 @@ data:
     import tempfile
     import urllib.request
     from pathlib import Path
+    from urllib.parse import urlparse
 
     USER_AGENT = "Mozilla/5.0 kubecert-question-bank-sync"
 
@@ -67,7 +68,15 @@ data:
                     raise SystemExit(f"unsafe archive path: {member.name}")
             handle.extractall(target)
 
-    def artifact_from_manifest() -> tuple[str, str]:
+    def derive_version(url: str, sha256: str) -> str:
+        name = Path(urlparse(url).path).name
+        for suffix in (".tar.gz", ".tgz", ".zip"):
+            if name.endswith(suffix):
+                name = name[: -len(suffix)]
+                break
+        return name or sha256[:12]
+
+    def artifact_from_manifest() -> tuple[str, str, str]:
         explicit = os.getenv("CERT_RUNTIME_NODE_MANIFEST_URL", "").strip()
         path = os.getenv("CERT_RUNTIME_NODE_MANIFEST_PATH", "").strip()
         base = os.getenv("CERT_ARTIFACT_BASE_URL", "").strip().rstrip("/")
@@ -79,39 +88,58 @@ data:
         elif base and version:
             manifest_url = f"{base}/runtime/manifests/runtime-node-{version}.json"
         else:
-            return "", ""
+            return "", "", ""
         with tempfile.TemporaryDirectory() as raw_tmp:
             manifest_path = Path(raw_tmp) / "runtime-node.json"
             download(manifest_url, manifest_path)
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         question_bank = manifest.get("questionBank") or {}
-        return str(question_bank.get("url") or ""), str(question_bank.get("sha256") or "")
+        return (
+            str(question_bank.get("url") or ""),
+            str(question_bank.get("sha256") or ""),
+            str(question_bank.get("version") or manifest.get("version") or ""),
+        )
 
     target = Path(require(os.getenv("CERT_QUESTION_BANK_ROOT", ""), "CERT_QUESTION_BANK_ROOT"))
     artifact_url = os.getenv("CERT_QUESTION_BANK_ARTIFACT_URL", "").strip()
     expected_sha = os.getenv("CERT_QUESTION_BANK_ARTIFACT_SHA256", "").strip()
+    artifact_version = os.getenv("CERT_QUESTION_BANK_VERSION", "").strip()
     if not artifact_url:
-        artifact_url, expected_sha = artifact_from_manifest()
+        artifact_url, expected_sha, artifact_version = artifact_from_manifest()
     artifact_url = require(artifact_url, "question-bank artifact URL")
+    expected_sha = require(expected_sha, "question-bank artifact sha256")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         archive = Path(tmpdir) / "question-bank.tar.gz"
         download(artifact_url, archive)
-        if expected_sha:
-            actual_sha = sha256(archive)
-            if actual_sha != expected_sha:
-                raise SystemExit(f"question-bank sha256 mismatch: {actual_sha} != {expected_sha}")
+        actual_sha = sha256(archive)
+        if actual_sha != expected_sha:
+            raise SystemExit(f"question-bank sha256 mismatch: {actual_sha} != {expected_sha}")
         extracted = Path(tmpdir) / "extract"
         extracted.mkdir()
         safe_extract(archive, extracted)
+        payload_root = extracted
+        nested_root = extracted / "question-bank"
+        if nested_root.is_dir() and (nested_root / "questions").is_dir() and (nested_root / "exam-sets").is_dir():
+            payload_root = nested_root
         target.mkdir(parents=True, exist_ok=True)
         for child in target.iterdir():
             if child.is_dir():
                 shutil.rmtree(child)
             else:
                 child.unlink()
-        for child in extracted.iterdir():
+        for child in payload_root.iterdir():
             shutil.move(str(child), target / child.name)
+        metadata = {
+            "schemaVersion": "kubecert.questionBankArtifact/v1",
+            "version": artifact_version or derive_version(artifact_url, expected_sha),
+            "url": artifact_url,
+            "sha256": expected_sha,
+        }
+        (target / ".kubecert-question-bank.json").write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 ---
 apiVersion: batch/v1
 kind: Job
@@ -150,6 +178,8 @@ spec:
               value: {{ .Values.questionBank.artifactUrl | quote }}
             - name: CERT_QUESTION_BANK_ARTIFACT_SHA256
               value: {{ .Values.questionBank.artifactSha256 | quote }}
+            - name: CERT_QUESTION_BANK_VERSION
+              value: {{ .Values.questionBank.version | quote }}
             - name: CERT_QUESTION_BANK_ROOT
               value: {{ .Values.questionBank.mountPath | quote }}
             {{- include "kubecert.r2Env" . | nindent 12 }}

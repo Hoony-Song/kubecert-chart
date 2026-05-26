@@ -20,3 +20,4 @@ tasks in `kubecert`.
 | TASK-009 | Dev Cluster Helm Smoke | Install to disposable dev cluster using Helm only. |
 | TASK-010 | Chart Release Publication | Package and publish the public chart repository. |
 | TASK-011 | Values Surface, SSH Key Generation, and Terminal Host Contract | Hide internal defaults, generate SSH keys, and split terminal host. |
+| TASK-012 | Session-Scoped Question Bank Bundle Streaming | Make platform-managed question-bank bundles the source of truth for Runtime setup/grade. |

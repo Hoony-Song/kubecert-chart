@@ -107,6 +107,7 @@
           "type": "string",
           "enum": ["artifact", "existingClaim"]
         },
+        "version": { "type": "string" },
         "artifactUrl": { "type": "string" },
         "artifactSha256": { "type": "string" }
       }

@@ -127,6 +127,7 @@ mode, leave `config.frontend.examApiBaseUrl` and
 
 Runtime and artifacts:
 
+- `questionBank.version`
 - `questionBank.artifactUrl`
 - `questionBank.artifactSha256`
 
@@ -134,6 +135,10 @@ Runtime Node installer and manifest defaults live in the private application
 source, not in public default values. Override `config.runtimeNodeInstallerUrl`
 or `config.runtimeNodeManifestUrl` only when releasing or testing a different
 artifact channel.
+
+The question-bank sync Job writes `.kubecert-question-bank.json` into the
+question-bank volume. API and worker pods use that metadata to pin each new
+session to the exact question-bank bundle version, URL, and sha256.
 
 Secrets:
 
