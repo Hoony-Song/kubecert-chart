@@ -123,6 +123,26 @@ tolerations:
 {{- end -}}
 {{- end -}}
 
+{{- define "kubecert.examApiBaseUrl" -}}
+{{- if .Values.config.frontend.examApiBaseUrl -}}
+{{- .Values.config.frontend.examApiBaseUrl | trimSuffix "/" -}}
+{{- else if .Values.ingress.sameOriginApi.enabled -}}
+{{- "" -}}
+{{- else -}}
+{{- include "kubecert.publicApiUrl" . -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubecert.adminApiBaseUrl" -}}
+{{- if .Values.config.frontend.adminApiBaseUrl -}}
+{{- .Values.config.frontend.adminApiBaseUrl | trimSuffix "/" -}}
+{{- else if .Values.ingress.sameOriginApi.enabled -}}
+{{- "" -}}
+{{- else -}}
+{{- include "kubecert.publicApiUrl" . -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "kubecert.defaultWebOrigins" -}}
 {{- if .Values.ingress.enabled -}}
 {{- list (include "kubecert.externalOrigin" (dict "root" . "name" "exam")) (include "kubecert.externalOrigin" (dict "root" . "name" "admin")) | join "," -}}
