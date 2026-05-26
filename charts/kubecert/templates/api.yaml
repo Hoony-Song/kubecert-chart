@@ -18,6 +18,8 @@ spec:
         app.kubernetes.io/name: {{ include "kubecert.apiName" . }}
         app.kubernetes.io/component: api
         {{- include "kubecert.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
       {{- include "kubecert.podScheduling" . | nindent 6 }}

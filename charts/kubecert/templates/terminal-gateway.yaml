@@ -18,6 +18,8 @@ spec:
         app.kubernetes.io/name: {{ include "kubecert.terminalGatewayName" . }}
         app.kubernetes.io/component: terminal-gateway
         {{- include "kubecert.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       {{- include "kubecert.imagePullSecrets" . | nindent 6 }}
       {{- include "kubecert.waitForDependenciesInitContainers" . | nindent 6 }}
