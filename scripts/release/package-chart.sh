@@ -65,6 +65,10 @@ fi
 
 mkdir -p "${DESTINATION}"
 
+helm repo add bitnami https://charts.bitnami.com/bitnami --force-update >/dev/null
+helm repo add kedacore https://kedacore.github.io/charts --force-update >/dev/null
+helm repo update >/dev/null
+
 helm dependency build "${CHART_DIR}"
 helm lint "${CHART_DIR}"
 
