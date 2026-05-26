@@ -3,44 +3,33 @@
 
 images:
   api:
-    repository: registry.dev.example.com/kubecert-api
-    tag: dev-replace-with-shortsha-timestamp
+    repository: ghcr.io/example-org/apps/kubecert-api
+    tag: v1.1.0-dev.20260526.r1
     digest: ""
   worker:
-    repository: registry.dev.example.com/kubecert-worker
-    tag: dev-replace-with-shortsha-timestamp
+    repository: ghcr.io/example-org/apps/kubecert-worker
+    tag: v1.1.0-dev.20260526.r1
     digest: ""
   terminalGateway:
-    repository: registry.dev.example.com/kubecert-terminal-gateway
-    tag: dev-replace-with-shortsha-timestamp
+    repository: ghcr.io/example-org/apps/kubecert-terminal-gateway
+    tag: v1.1.0-dev.20260526.r1
     digest: ""
   examWeb:
-    repository: registry.dev.example.com/kubecert-exam-web
-    tag: dev-replace-with-shortsha-timestamp
+    repository: ghcr.io/example-org/apps/kubecert-exam-web
+    tag: v1.1.0-dev.20260526.r1
     digest: ""
   adminWeb:
-    repository: registry.dev.example.com/kubecert-admin-web
-    tag: dev-replace-with-shortsha-timestamp
+    repository: ghcr.io/example-org/apps/kubecert-admin-web
+    tag: v1.1.0-dev.20260526.r1
     digest: ""
 
 secrets:
-  app:
-    existingSecret: kubecert-app
   admin:
     existingSecret: kubecert-admin
   runtimeSsh:
     existingSecret: kubecert-runtime-ssh
   terminalSsh:
     existingSecret: kubecert-terminal-ssh
-
-config:
-  publicApiUrl: https://api.dev.example.com
-  artifactBaseUrl: https://artifacts.dev.example.com
-  runtimeNodeInstallerUrl: https://artifacts.dev.example.com/runtime/installer/install.sh
-  runtimeNodeManifestUrl: https://artifacts.dev.example.com/runtime/manifests/runtime-node-dev.json
-  frontend:
-    examApiBaseUrl: https://api.dev.example.com
-    adminApiBaseUrl: https://api.dev.example.com
 
 postgresql:
   enabled: true
@@ -63,7 +52,6 @@ questionBank:
 ingress:
   enabled: true
   className: nginx
-  hosts:
-    exam: exam.dev.example.com
-    admin: admin.dev.example.com
-    api: api.dev.example.com
+  baseHost: dev.example.com
+  sameOriginApi:
+    enabled: true

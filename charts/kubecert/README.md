@@ -17,6 +17,12 @@ Real deployments must provide image repositories and immutable tags or digests g
 - `images.adminWeb.repository`
 - `images.adminWeb.tag` or `images.adminWeb.digest`
 
+Kubecert project images use the `ghcr.io/hoony-song/apps/<image-name>`
+repository namespace. Development tags use
+`v<next-version>-dev.<yyyymmdd>.r<n>`, while production tags use
+`v<released-version>-<yyyymmdd>.r<n>` or digest pinning. Do not use mutable tags
+such as `latest`, `current`, `main`, `dev`, `prod`, or `stable` in real values.
+
 The default `values.yaml` intentionally leaves those empty.
 
 ## Dependency Modes

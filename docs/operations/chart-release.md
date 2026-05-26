@@ -8,6 +8,12 @@ Kubecert chart releases are public. They must contain chart source, rendered-saf
 - Update `appVersion` only when the private `kubecert` application release baseline changes.
 - Do not use `latest`, `main`, or mutable image tags as the release contract.
 - Real dev/prod image tags or digests are supplied by values files outside this public repository.
+- Project images use `ghcr.io/hoony-song/apps/<image-name>`.
+- Development image tags use `v<next-version>-dev.<yyyymmdd>.r<n>`.
+- Production image tags use `v<released-version>-<yyyymmdd>.r<n>` or digest
+  pinning.
+- Production values must never reference dev tags or mutable aliases such as
+  `latest`, `current`, `main`, `dev`, `prod`, or `stable`.
 
 ## Local Package
 

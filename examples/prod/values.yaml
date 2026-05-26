@@ -3,44 +3,33 @@
 
 images:
   api:
-    repository: registry.example.com/kubecert-api
-    tag: vYYYYMMDD-release-rN
+    repository: ghcr.io/example-org/apps/kubecert-api
+    tag: v1.0.3-20260526.r1
     digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   worker:
-    repository: registry.example.com/kubecert-worker
-    tag: vYYYYMMDD-release-rN
+    repository: ghcr.io/example-org/apps/kubecert-worker
+    tag: v1.0.3-20260526.r1
     digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   terminalGateway:
-    repository: registry.example.com/kubecert-terminal-gateway
-    tag: vYYYYMMDD-release-rN
+    repository: ghcr.io/example-org/apps/kubecert-terminal-gateway
+    tag: v1.0.3-20260526.r1
     digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   examWeb:
-    repository: registry.example.com/kubecert-exam-web
-    tag: vYYYYMMDD-release-rN
+    repository: ghcr.io/example-org/apps/kubecert-exam-web
+    tag: v1.0.3-20260526.r1
     digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
   adminWeb:
-    repository: registry.example.com/kubecert-admin-web
-    tag: vYYYYMMDD-release-rN
+    repository: ghcr.io/example-org/apps/kubecert-admin-web
+    tag: v1.0.3-20260526.r1
     digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
 
 secrets:
-  app:
-    existingSecret: kubecert-app
   admin:
     existingSecret: kubecert-admin
   runtimeSsh:
     existingSecret: kubecert-runtime-ssh
   terminalSsh:
     existingSecret: kubecert-terminal-ssh
-
-config:
-  publicApiUrl: https://api.example.com
-  artifactBaseUrl: https://artifacts.example.com
-  runtimeNodeInstallerUrl: https://artifacts.example.com/runtime/installer/install.sh
-  runtimeNodeManifestUrl: https://artifacts.example.com/runtime/manifests/runtime-node-prod.json
-  frontend:
-    examApiBaseUrl: https://api.example.com
-    adminApiBaseUrl: https://api.example.com
 
 postgresql:
   enabled: false
@@ -77,10 +66,13 @@ questionBank:
 ingress:
   enabled: true
   className: nginx
-  hosts:
-    exam: exam.example.com
-    admin: admin.example.com
-    api: api.example.com
+  baseHost: example.com
+  subdomains:
+    exam: www
+    admin: admin
+    api: api
+  sameOriginApi:
+    enabled: true
   tls:
     enabled: true
     secretName: kubecert-tls

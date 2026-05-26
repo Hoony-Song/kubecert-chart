@@ -71,12 +71,12 @@ Completed.
 
 - `examples/dev/values.yaml`
   - Uses bundled PostgreSQL, Redis, and KEDA defaults.
-  - Uses `dev-replace-with-shortsha-timestamp` placeholder tags.
+  - Uses `v<next-version>-dev.<yyyymmdd>.r<n>` placeholder tags.
   - Uses placeholder dev hosts under `*.dev.example.com`.
   - References placeholder existing Secret names but never stores Secret values.
 - `examples/prod/values.yaml`
   - Uses external PostgreSQL, Redis, and KEDA mode.
-  - Uses production-style `vYYYYMMDD-release-rN` placeholder tags.
+  - Uses production-style `v<released-version>-<yyyymmdd>.r<n>` placeholder tags.
   - Shows digest pinning fields with zero placeholder digests that must be replaced.
   - References placeholder existing Secret names but never stores Secret values.
 - `examples/external-services/values.yaml`
