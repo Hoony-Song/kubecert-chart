@@ -63,7 +63,7 @@ mapfile -d '' FIRST_PARTY_FILES < <(find "${EXTRACT_DIR}/kubecert" \
   -print0)
 
 if [[ "${#FIRST_PARTY_FILES[@]}" -gt 0 ]] && grep -IE \
-  'BEGIN (RSA |OPENSSH |EC |DSA )?PRIVATE KEY|sweetlabs|192\.168\.|registry\.example|example\.(com|internal)|dev-replace|vYYYYMMDD|0000000000000000000000000000000000000000000000000000000000000000' \
+  'BEGIN (RSA |OPENSSH |EC |DSA )?PRIVATE KEY|(api|admin|www)\.sweetlabs\.kr|192\.168\.|registry\.example|example\.(com|internal)|dev-replace|vYYYYMMDD|0000000000000000000000000000000000000000000000000000000000000000' \
   "${FIRST_PARTY_FILES[@]}" >/tmp/kubecert-chart-forbidden-content.txt; then
   cat /tmp/kubecert-chart-forbidden-content.txt >&2
   fail "forbidden private marker found in first-party chart package content"
