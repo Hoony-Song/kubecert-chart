@@ -50,6 +50,14 @@
             "terminalHost": { "type": "string" },
             "terminalWsBaseUrl": { "type": "string" }
           }
+        },
+        "backend": {
+          "type": "object",
+          "properties": {
+            "examDurationMinutes": { "type": "integer", "minimum": 1 },
+            "unstartedSessionTtlHours": { "type": "integer", "minimum": 1 },
+            "expirySweepIntervalSeconds": { "type": "integer", "minimum": 1 }
+          }
         }
       }
     },

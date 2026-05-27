@@ -53,6 +53,9 @@ data:
   CERT_SESSION_TTL_SECONDS: {{ .Values.config.backend.sessionTtlSeconds | quote }}
   CERT_SESSION_GRACE_SECONDS: {{ .Values.config.backend.sessionGraceSeconds | quote }}
   CERT_CLEANUP_INTERVAL_SECONDS: {{ .Values.config.backend.cleanupIntervalSeconds | quote }}
+  CERT_EXAM_DURATION_MINUTES: {{ .Values.config.backend.examDurationMinutes | quote }}
+  CERT_UNSTARTED_SESSION_TTL_HOURS: {{ .Values.config.backend.unstartedSessionTtlHours | quote }}
+  CERT_EXPIRY_SWEEP_INTERVAL_SECONDS: {{ .Values.config.backend.expirySweepIntervalSeconds | quote }}
   CERT_GRADE_THREADS: {{ .Values.config.backend.gradeThreads | quote }}
   CERT_SESSION_THREADS: {{ .Values.config.backend.sessionThreads | quote }}
   CERT_R2_ENABLED: {{ .Values.r2.enabled | quote }}

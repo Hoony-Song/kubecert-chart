@@ -51,6 +51,9 @@ config:
     sessionTtlSeconds: 7200
     sessionGraceSeconds: 300
     cleanupIntervalSeconds: 60
+    examDurationMinutes: 120
+    unstartedSessionTtlHours: 24
+    expirySweepIntervalSeconds: 30
     gradeThreads: 5
     sessionThreads: 2
     autoDbInit: false
