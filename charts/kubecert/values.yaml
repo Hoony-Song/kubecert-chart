@@ -27,7 +27,7 @@ images:
     pullPolicy: IfNotPresent
   examWeb:
     repository: ghcr.io/hoony-song/apps/kubecert-exam-web
-    tag: v1.0.0-20260527.r3
+    tag: v1.0.0-20260528.r1
     digest: ""
     pullPolicy: IfNotPresent
   adminWeb:
