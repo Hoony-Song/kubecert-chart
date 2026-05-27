@@ -12,12 +12,12 @@ global:
 images:
   api:
     repository: ghcr.io/hoony-song/apps/kubecert-api
-    tag: v1.0.0-20260528.r2
+    tag: v1.0.0-20260528.r3
     digest: ""
     pullPolicy: IfNotPresent
   worker:
     repository: ghcr.io/hoony-song/apps/kubecert-worker
-    tag: v1.0.0-20260528.r2
+    tag: v1.0.0-20260528.r3
     digest: ""
     pullPolicy: IfNotPresent
   terminalGateway:
