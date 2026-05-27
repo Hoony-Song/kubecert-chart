@@ -12,12 +12,12 @@ global:
 images:
   api:
     repository: ghcr.io/hoony-song/apps/kubecert-api
-    tag: v1.0.0-20260527.r2
+    tag: v1.0.0-20260528.r2
     digest: ""
     pullPolicy: IfNotPresent
   worker:
     repository: ghcr.io/hoony-song/apps/kubecert-worker
-    tag: v1.0.0-20260527.r2
+    tag: v1.0.0-20260528.r2
     digest: ""
     pullPolicy: IfNotPresent
   terminalGateway:
@@ -40,6 +40,9 @@ config:
   corsOrigins: []
   publicApiUrl: ""
   allowInsecurePublicApiUrl: false
+  artifactBaseUrl: https://artifacts.sweetlabs.kr
+  runtimeNodeInstallerUrl: https://artifacts.sweetlabs.kr/runtime/installer/install.sh
+  runtimeNodeManifestUrl: https://artifacts.sweetlabs.kr/runtime/manifests/runtime-node-v20260528-runtime-layout-r1.json
   frontend:
     examApiBaseUrl: ""
     adminApiBaseUrl: ""
