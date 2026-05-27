@@ -1,28 +1,6 @@
 # Public placeholder production override.
 # Keep real production values outside this public repository.
 
-images:
-  api:
-    repository: ghcr.io/example-org/apps/kubecert-api
-    tag: v1.0.3-20260526.r1
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-  worker:
-    repository: ghcr.io/example-org/apps/kubecert-worker
-    tag: v1.0.3-20260526.r1
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-  terminalGateway:
-    repository: ghcr.io/example-org/apps/kubecert-terminal-gateway
-    tag: v1.0.3-20260526.r1
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-  examWeb:
-    repository: ghcr.io/example-org/apps/kubecert-exam-web
-    tag: v1.0.3-20260526.r1
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-  adminWeb:
-    repository: ghcr.io/example-org/apps/kubecert-admin-web
-    tag: v1.0.3-20260526.r1
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-
 secrets:
   admin:
     existingSecret: kubecert-admin
@@ -58,10 +36,6 @@ keda:
   mode: external
 kedaOperator:
   enabled: false
-
-questionBank:
-  artifactUrl: https://artifacts.example.com/question-bank/kubecert-question-bank-prod.tar.gz
-  artifactSha256: replace-with-prod-sha256
 
 ingress:
   enabled: true

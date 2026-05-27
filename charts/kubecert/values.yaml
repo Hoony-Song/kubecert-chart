@@ -11,28 +11,28 @@ global:
 
 images:
   api:
-    repository: ""
-    tag: ""
+    repository: ghcr.io/hoony-song/apps/kubecert-api
+    tag: v1.0.0-20260527.r2
     digest: ""
     pullPolicy: IfNotPresent
   worker:
-    repository: ""
-    tag: ""
+    repository: ghcr.io/hoony-song/apps/kubecert-worker
+    tag: v1.0.0-20260527.r2
     digest: ""
     pullPolicy: IfNotPresent
   terminalGateway:
-    repository: ""
-    tag: ""
+    repository: ghcr.io/hoony-song/apps/kubecert-terminal-gateway
+    tag: v1.0.0-20260527.r1
     digest: ""
     pullPolicy: IfNotPresent
   examWeb:
-    repository: ""
-    tag: ""
+    repository: ghcr.io/hoony-song/apps/kubecert-exam-web
+    tag: v1.0.0-20260527.r3
     digest: ""
     pullPolicy: IfNotPresent
   adminWeb:
-    repository: ""
-    tag: ""
+    repository: ghcr.io/hoony-song/apps/kubecert-admin-web
+    tag: v1.0.0-20260527.r1
     digest: ""
     pullPolicy: IfNotPresent
 
@@ -198,9 +198,9 @@ questionBank:
   mode: artifact
   claimName: ""
   mountPath: /data/question-bank
-  version: ""
-  artifactUrl: ""
-  artifactSha256: ""
+  version: v20260527-cka-q002-q017-r2
+  artifactUrl: https://artifacts.sweetlabs.kr/question-bank/kubecert-question-bank-v20260527-cka-q002-q017-r2.tar.gz
+  artifactSha256: 33173d173cef061d7ee73d62ebf16458efd55a2238a7af42285847d0c5193572
   persistence:
     create: true
     existingClaim: ""

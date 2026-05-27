@@ -2,8 +2,8 @@ apiVersion: v2
 name: kubecert
 description: Helm chart for the Kubecert exam platform
 type: application
-version: 0.1.6
-appVersion: "1.0.0"
+version: 0.1.7
+appVersion: "v1.0.0-20260527.r3"
 home: https://github.com/Hoony-Song/kubecert-chart
 sources:
   - https://github.com/Hoony-Song/kubecert-chart

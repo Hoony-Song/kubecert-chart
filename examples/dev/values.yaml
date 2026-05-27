@@ -1,27 +1,18 @@
 # Public placeholder development override.
-# Copy to a private location and replace every placeholder before use.
+# Development environments normally override image tags while using the official
+# image repositories and question-bank artifact from the chart defaults.
 
 images:
   api:
-    repository: ghcr.io/example-org/apps/kubecert-api
     tag: v1.1.0-dev.20260526.r1
-    digest: ""
   worker:
-    repository: ghcr.io/example-org/apps/kubecert-worker
     tag: v1.1.0-dev.20260526.r1
-    digest: ""
   terminalGateway:
-    repository: ghcr.io/example-org/apps/kubecert-terminal-gateway
     tag: v1.1.0-dev.20260526.r1
-    digest: ""
   examWeb:
-    repository: ghcr.io/example-org/apps/kubecert-exam-web
     tag: v1.1.0-dev.20260526.r1
-    digest: ""
   adminWeb:
-    repository: ghcr.io/example-org/apps/kubecert-admin-web
     tag: v1.1.0-dev.20260526.r1
-    digest: ""
 
 secrets:
   admin:
@@ -44,10 +35,6 @@ kedaOperator:
 
 keda:
   mode: bundled
-
-questionBank:
-  artifactUrl: https://artifacts.dev.example.com/question-bank/kubecert-question-bank-dev.tar.gz
-  artifactSha256: replace-with-dev-sha256
 
 ingress:
   enabled: true
