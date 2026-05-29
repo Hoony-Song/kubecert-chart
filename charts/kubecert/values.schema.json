@@ -143,6 +143,20 @@
             "enabled": { "type": "boolean" }
           }
         },
+        "canonicalRedirect": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "fromHost": { "type": "string" },
+            "toHost": { "type": "string" },
+            "scheme": { "type": "string" },
+            "code": { "type": "integer" },
+            "annotations": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        },
         "hosts": {
           "type": "object",
           "properties": {

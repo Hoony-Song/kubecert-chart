@@ -3,6 +3,11 @@
 {{- $examHost := include "kubecert.ingressHost" (dict "root" . "name" "exam") -}}
 {{- $adminHost := include "kubecert.ingressHost" (dict "root" . "name" "admin") -}}
 {{- $terminalHost := include "kubecert.ingressHost" (dict "root" . "name" "terminal") -}}
+{{- $canonicalRedirect := .Values.ingress.canonicalRedirect -}}
+{{- $redirectFromHost := $canonicalRedirect.fromHost | default "" -}}
+{{- $redirectToHost := $canonicalRedirect.toHost | default $examHost -}}
+{{- $redirectScheme := $canonicalRedirect.scheme | default (include "kubecert.externalScheme" .) -}}
+{{- $redirectCode := $canonicalRedirect.code | default 301 -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -160,6 +165,43 @@ spec:
                 name: {{ include "kubecert.examWebName" . }}
                 port:
                   name: http
+{{- if and $canonicalRedirect.enabled $redirectFromHost $redirectToHost (ne $redirectFromHost $redirectToHost) }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kubecert.fullname" . }}-canonical-redirect
+  labels:
+    {{- include "kubecert.labels" . | nindent 4 }}
+    app.kubernetes.io/component: canonical-redirect
+  annotations:
+    nginx.ingress.kubernetes.io/permanent-redirect: {{ printf "%s://%s$request_uri" $redirectScheme $redirectToHost | quote }}
+    nginx.ingress.kubernetes.io/permanent-redirect-code: {{ $redirectCode | quote }}
+    {{- with $canonicalRedirect.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  {{- end }}
+  {{- if and .Values.ingress.tls.enabled .Values.ingress.tls.secretName }}
+  tls:
+    - secretName: {{ .Values.ingress.tls.secretName | quote }}
+      hosts:
+        - {{ $redirectFromHost | quote }}
+  {{- end }}
+  rules:
+    - host: {{ $redirectFromHost | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kubecert.examWebName" . }}
+                port:
+                  name: http
+{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

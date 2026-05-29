@@ -343,6 +343,13 @@ ingress:
     terminal: terminal
   sameOriginApi:
     enabled: false
+  canonicalRedirect:
+    enabled: false
+    fromHost: ""
+    toHost: ""
+    scheme: ""
+    code: 301
+    annotations: {}
   hosts:
     exam: ""
     admin: ""
