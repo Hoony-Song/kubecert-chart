@@ -201,9 +201,9 @@ questionBank:
   mode: artifact
   claimName: ""
   mountPath: /data/question-bank
-  version: v20260529-qbank-r1
-  artifactUrl: https://artifacts.sweetlabs.kr/question-bank/kubecert-question-bank-v20260529-qbank-r1.tar.gz
-  artifactSha256: f09a0d15b3d6f1184cb217fd3a34632c166cab5a1093f56078190409bc72cf3f
+  version: v20260530-qbank-r1
+  artifactUrl: https://artifacts.sweetlabs.kr/question-bank/kubecert-question-bank-v20260530-qbank-r1.tar.gz
+  artifactSha256: 6f50105c44bbd9d3144b959cf6cbf9318cea34b3064883a45b471b5b5e9665c0
   persistence:
     create: true
     existingClaim: ""
