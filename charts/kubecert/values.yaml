@@ -347,8 +347,6 @@ ingress:
     enabled: false
     fromHost: ""
     toHost: ""
-    scheme: ""
-    code: 301
     annotations: {}
   hosts:
     exam: ""
